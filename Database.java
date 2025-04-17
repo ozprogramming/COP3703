@@ -6,6 +6,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class Database
 {
@@ -76,49 +77,6 @@ public class Database
 	    professorAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    prereqAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    
-    	insertAction.addActionListener(e -> {
-			try {
-				selectionButtonPressed(e);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
-	    registerAction.addActionListener(e -> {
-			try {
-				selectionButtonPressed(e);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
-	    gradeAction.addActionListener(e -> {
-			try {
-				selectionButtonPressed(e);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
-	    listAction.addActionListener(e -> {
-			try {
-				selectionButtonPressed(e);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
-	    professorAction.addActionListener(e -> {
-			try {
-				selectionButtonPressed(e);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
-	    prereqAction.addActionListener(e -> {
-			try {
-				selectionButtonPressed(e);
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-		});
-	    
 	    selectActions.add(Box.createRigidArea(new Dimension(10,25)));
 	    selectActions.add(actionHeader);
 	    selectActions.add(Box.createRigidArea(new Dimension(10,25)));
@@ -152,129 +110,131 @@ public class Database
 	    gbc.gridx = 1;
 	    gbc.weightx = 0.9;
 	    
+	    insertAction.addActionListener(e -> {
+			try {
+				selectionButtonPressed(e, actionForm);
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		});
+	    registerAction.addActionListener(e -> {
+			try {
+				selectionButtonPressed(e, actionForm);
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		});
+	    gradeAction.addActionListener(e -> {
+			try {
+				selectionButtonPressed(e, actionForm);
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		});
+	    listAction.addActionListener(e -> {
+			try {
+				selectionButtonPressed(e, actionForm);
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		});
+	    professorAction.addActionListener(e -> {
+			try {
+				selectionButtonPressed(e, actionForm);
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		});
+	    prereqAction.addActionListener(e -> {
+			try {
+				selectionButtonPressed(e, actionForm);
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		});
+	    
 	    DBInterface.add(actionForm, gbc);
 	    
 	    DBFrame.setVisible(true);
 	}
 	
-	private static void selectionButtonPressed(ActionEvent e) throws SQLException
+	private static void selectionButtonPressed(ActionEvent e, JPanel actionForm) throws SQLException
 	{
 		String command = e.getActionCommand();
 		
-		System.out.println(command);
+		actionForm.removeAll();
 		
 		if (command.equals("Database Insertion"))
 		{
-			DBInsert();
+			DBInsert(actionForm);
 		}
 		else if (command.equals("Student Course Registration"))
 		{
-			courseRegistration();
+			courseRegistration(actionForm);
 		}
 		else if (command.equals("Student Grade Report"))
 		{
-			gradeReport();
+			gradeReport(actionForm);
 		}
 		else if (command.equals("Course List"))
 		{
-			courseList();
+			courseList(actionForm);
 		}
 		else if (command.equals("Professor Courses"))
 		{
-			professorTeaching();
+			professorTeaching(actionForm);
 		}
 		else if (command.equals("Prequisite Satisfaction"))
 		{
-			courseGrade();
+			courseGrade(actionForm);
 		}
+		
+		actionForm.updateUI();
 	}
 
-	public static void DBInsert() throws SQLException
-	{
+	public static void DBInsert(JPanel actionForm) throws SQLException
+	{	
+		String[] entities = {"Department", "Instructor", "Student", "Course", "Section"};
+		
+		JComboBox<String> select = new JComboBox<>(entities);
+		String name = (String) select.getSelectedItem();
+		
+		actionForm.add(select);
+		
+		EntityForm form = new EntityForm();
+		
+		actionForm.remove(form.panel);
+		form.fill((String) select.getSelectedItem());
+		actionForm.add(form.panel);
+
+		select.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				form.fill((String) select.getSelectedItem());
+				actionForm.updateUI();
+			}
+		});
+		
+		// Database Insertion
+		/*
 		Connection conn = getConnection();
-		
-		String[] entities = {"Student", "Instructor", "Department", "Course", "Section"};
-		
-		JComboBox<String> selectEntity = new JComboBox<>(entities);
-		
-		JPanel entityForm = new JPanel();
-		
-		String entityName = (String) selectEntity.getSelectedItem();
-		
-		String values = "";
-		
-		if (entityName.equals("Student"))
-		{
-			JTextField nNumber = new JTextField();
-			JTextField ssn = new JTextField();
-			JTextField fName = new JTextField(20);
-			JTextField mInit = new JTextField(1);
-			JTextField lName = new JTextField(20);
-			JTextField phone = new JTextField();
-			JTextField street = new JTextField(30);
-			JTextField city = new JTextField(20);
-			JTextField state = new JTextField(2);
-			JTextField zip = new JTextField(5);
-			JTextField bDate = new JTextField();
-			JTextField sex = new JTextField(1);
-			JTextField currStreet = new JTextField(30);
-			JTextField currCity = new JTextField(20);
-			JTextField currState = new JTextField(2);
-			JTextField currZip = new JTextField(5);
-			JTextField studentClass = new JTextField(15);
-			JTextField degreeProgram = new JTextField();
-			JTextField Major_dept = new JTextField();
-			JTextField Minor_dept = new JTextField();
-			
-		}
-		else if (entityName.equals("Instructor"))
-		{
-			JTextField nNumber = new JTextField();
-			JTextField ssn = new JTextField();
-			JTextField fName = new JTextField(20);
-			JTextField mInit = new JTextField(1);
-			JTextField lName = new JTextField(20);
-			JTextField phone = new JTextField();
-			JTextField street = new JTextField(30);
-			JTextField city = new JTextField(20);
-			JTextField state = new JTextField(2);
-			JTextField zip = new JTextField(5);
-			JTextField bDate = new JTextField();
-			JTextField sex = new JTextField(1);
-			JTextField dept = new JTextField(4);
-			JTextField oNumber = new JTextField(4);
-		}
-		else if (entityName.equals("Department"))
-		{
-			
-		}
-		else if (entityName.equals("Course"))
-		{
-			
-		}
-		else if (entityName.equals("Section"))
-		{
-			
-		}
-		
-		JButton insertEntity = new JButton("Insert " + entityName);
 		
 		String query = "INSERT INTO (" + entityName.toUpperCase() + ") VALUES (" + values + ")";
 
-	    PreparedStatement statement = conn.prepareStatement(query);
+	    PreparedStatement statement = conn.prepareStatement(query);*/
 	}
 	
-	public static void courseRegistration() throws SQLException
+	public static void courseRegistration(JPanel actionForm) throws SQLException
 	{
 		
 	}
 	
-	public static void gradeReport() throws SQLException
+	public static void gradeReport(JPanel actionForm) throws SQLException
 	{
 		
 	}
 	
-	public static void courseList() throws SQLException
+	public static void courseList(JPanel actionForm) throws SQLException
 	{
 		Connection conn = getConnection();
 		
@@ -283,17 +243,17 @@ public class Database
 	    PreparedStatement statement = conn.prepareStatement(query);
 	}
 	
-	public static void professorTeaching() throws SQLException
+	public static void professorTeaching(JPanel actionForm) throws SQLException
 	{
 		
 	}
 	
-	public static void courseGrade() throws SQLException
+	public static void courseGrade(JPanel actionForm) throws SQLException
 	{
 		
 	}
 	
-	public static void prereqSatisfy() throws SQLException
+	public static void prereqSatisfy(JPanel actionForm) throws SQLException
 	{
 		
 	}
