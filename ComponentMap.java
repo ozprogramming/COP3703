@@ -16,6 +16,11 @@ public class ComponentMap
         this.put(panel);
 	}
 	
+	public ComponentMap()
+	{
+		this.componentMap = new HashMap<String, Component>();
+	}
+	
 	public void put(JPanel panel)
 	{
 		Component[] components = panel.getComponents();
@@ -27,6 +32,11 @@ public class ComponentMap
         		componentMap.put(components[i].getName(), components[i]);
         	}
         }
+	}
+	
+	public void append(Component component)
+	{
+		componentMap.put(component.getName(), component);
 	}
 	
 	public boolean evaluateTextComponents()

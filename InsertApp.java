@@ -21,10 +21,10 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.LineBorder;
+import javax.swing.text.JTextComponent;
 
 public class InsertApp extends JPanel
 {
-	private JPanel panel;
 	private JPanel form;
 	private ComponentMap components;
 	
@@ -32,9 +32,14 @@ public class InsertApp extends JPanel
 	{
 		// Initialize Panel
 		
-		this.panel = new JPanel();
-		this.panel.setLayout(new BoxLayout(this.panel, BoxLayout.Y_AXIS));
-		this.panel.setBorder(new LineBorder(Color.GREEN));
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		this.setBorder(new LineBorder(Color.GREEN));
+		
+		// Initialize Form
+		
+		this.form = new JPanel();
+		this.form.setLayout(new BoxLayout(this.form, BoxLayout.Y_AXIS));
+		this.form.setBorder(new LineBorder(Color.GREEN));
 		
 		// Entity
 		
@@ -76,12 +81,20 @@ public class InsertApp extends JPanel
 				}
 			}
 		});
+		submit.setName("Submit");
+		
+		// Initialize Component Map
+		
+		this.components = new ComponentMap();
+		this.components.append(entity);
+		this.components.append(submit);
 		
 		// Set Form
 		
-		this.panel.add(entity);
-		this.panel.add(form);
-		this.panel.add(submit);
+		this.add(entity);
+		this.add(this.form);
+		this.add(submit);
+		
 		this.update();
 	}
 	
@@ -98,19 +111,20 @@ public class InsertApp extends JPanel
 		if (entity.equals("Department"))
 		{
 			// Department Code
-			AppTextField<JTextField> code = new AppTextField<>(new JTextField());
+			AppTextField code = new AppTextField();
 			code.setName("Department Code");
 			
+			
 			// Department Name
-			AppTextField<JTextField> name = new AppTextField<>(new JTextField());
+			AppTextField name = new AppTextField();
 			name.setName("Department Name");
 			
 			// Office Number
-			AppTextField<JTextField> oNum = new AppTextField<>(new JTextField());
+			AppTextField oNum = new AppTextField();
 			oNum.setName("Office Number");
 			
 			// College
-			AppTextField<JTextField> college = new AppTextField<>(new JTextField());
+			AppTextField college = new AppTextField();
 			college.setName("College");
 			
 			// Add Components
@@ -130,35 +144,35 @@ public class InsertApp extends JPanel
 		else if (entity.equals("Student"))
 		{
 			// N-Number
-			AppTextField<JTextField> nNum = new AppTextField<>(new JTextField());
+			AppTextField nNum = new AppTextField();
 			nNum.setName("N-Number");
 			
 			// SSN
-			AppTextField<JTextField> ssn = new AppTextField<>(new JTextField());
+			AppTextField ssn = new AppTextField();
 			ssn.setName("SSN");
 			
 			// First Name
-			AppTextField<JTextField> fName = new AppTextField<>(new JTextField());
+			AppTextField fName = new AppTextField();
 			fName.setName("First Name");
 			
 			// Middle Initial
-			AppTextField<JTextField> mInit = new AppTextField<>(new JTextField());
+			AppTextField mInit = new AppTextField();
 			mInit.setName("Middle Initial");
 						
 			// Last Name
-			AppTextField<JTextField> lName = new AppTextField<>(new JTextField());
+			AppTextField lName = new AppTextField();
 			lName.setName("Last Name");
 
 			// Phone Number
-			AppTextField<JTextField> pNum = new AppTextField<>(new JTextField());
+			AppTextField pNum = new AppTextField();
 			pNum.setName("Phone Number");
 			
 			// Permanent Street
-			AppTextField<JTextField> pStreet = new AppTextField<>(new JTextField());
+			AppTextField pStreet = new AppTextField();
 			pStreet.setName("Permanent Street");
 			
 			// Permanent City
-			AppTextField<JTextField> pCity = new AppTextField<>(new JTextField());
+			AppTextField pCity = new AppTextField();
 			pCity.setName("Permananent City");
 			
 			// Permanent State
@@ -166,15 +180,15 @@ public class InsertApp extends JPanel
 			pState.setName("Permanent State");
 			
 			// Permanent ZIP
-			AppTextField<JTextField> pZip = new AppTextField<>(new JTextField());
+			AppTextField pZip = new AppTextField();
 			pZip.setName("Permanent ZIP");
 			
 			// Current Street
-			AppTextField<JTextField> cStreet = new AppTextField<>(new JTextField());
+			AppTextField cStreet = new AppTextField();
 			cStreet.setName("Current Street");
 			
 			// Current City
-			AppTextField<JTextField> cCity = new AppTextField<>(new JTextField());
+			AppTextField cCity = new AppTextField();
 			cCity.setName("Current City");
 			
 			// Current State
@@ -182,7 +196,7 @@ public class InsertApp extends JPanel
 			cState.setName("Current State");
 
 			// Current ZIP
-			AppTextField<JTextField> cZip = new AppTextField<>(new JTextField());
+			AppTextField cZip = new AppTextField();
 			cZip.setName("Current ZIP");
 			
 			// Gender
@@ -277,35 +291,35 @@ public class InsertApp extends JPanel
 		else if (entity.equals("Instructor"))
 		{
 			// N-Number
-			AppTextField<JTextField> nNum = new AppTextField<>(new JTextField());
+			AppTextField nNum = new AppTextField();
 			nNum.setName("N-Number");
 			
 			// SSN
-			AppTextField<JTextField> ssn = new AppTextField<>(new JTextField());
+			AppTextField ssn = new AppTextField();
 			ssn.setName("SSN");
 			
 			// First Name
-			AppTextField<JTextField> fName = new AppTextField<>(new JTextField());
+			AppTextField fName = new AppTextField();
 			fName.setName("First Name");
 			
 			// Middle Initial
-			AppTextField<JTextField> mInit = new AppTextField<>(new JTextField());
+			AppTextField mInit = new AppTextField();
 			mInit.setName("Middle Initial");
 						
 			// Last Name
-			AppTextField<JTextField> lName = new AppTextField<>(new JTextField());
+			AppTextField lName = new AppTextField();
 			lName.setName("Last Name");
 
 			// Phone Number
-			AppTextField<JTextField> pNum = new AppTextField<>(new JTextField());
+			AppTextField pNum = new AppTextField();
 			pNum.setName("Phone Number");
 			
 			// Street
-			AppTextField<JTextField> street = new AppTextField<>(new JTextField());
+			AppTextField street = new AppTextField();
 			street.setName("Street");
 			
 			// City
-			AppTextField<JTextField> city = new AppTextField<>(new JTextField());
+			AppTextField city = new AppTextField();
 			city.setName("City");
 			
 			// State
@@ -313,7 +327,7 @@ public class InsertApp extends JPanel
 			state.setName("State");
 			
 			// ZIP
-			AppTextField<JTextField> zip = new AppTextField<>(new JTextField());
+			AppTextField zip = new AppTextField();
 			zip.setName("ZIP");
 			
 			// Gender
@@ -332,7 +346,7 @@ public class InsertApp extends JPanel
 			dept.setName("Department");
 			
 			// Office Number
-			JTextField oNum = new JTextField();
+			AppTextField oNum = new AppTextField();
 			oNum.setName("Office Number");
 			
 			// Add Components
@@ -382,15 +396,15 @@ public class InsertApp extends JPanel
 		else if (entity.equals("Course"))
 		{
 			// Course Code
-			AppTextField<JTextField> code = new AppTextField<>(new JTextField());
+			AppTextField code = new AppTextField();
 			code.setName("Course Code");
 			
 			// Course Name
-			AppTextField<JTextField> name = new AppTextField<>(new JTextField());
+			AppTextField name = new AppTextField();
 			name.setName("Course Name");
 			
 			// Course Description
-			AppTextField<JTextArea> desc = new AppTextField<>(new JTextArea());
+			AppTextField desc = new AppTextField();
 			desc.setName("Course Description");
 			
 			// Department
@@ -463,10 +477,10 @@ public class InsertApp extends JPanel
 		submit.setText("Insert " + entity);
 		
 		this.form.updateUI();
-		this.panel.updateUI();
+		this.updateUI();
 		
 		this.components.clear();
-		this.components.put(this.panel);
+		this.components.put(this);
 		this.components.put(this.form);
 	}
 	
@@ -734,7 +748,7 @@ public class InsertApp extends JPanel
 			}
 		}
 		
-		this.panel.repaint();
+		this.repaint();
 		this.form.repaint();
 	}
 	

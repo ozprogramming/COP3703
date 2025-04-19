@@ -1,39 +1,24 @@
 import java.util.regex.Pattern;
 
-import javax.swing.text.JTextComponent;
+import javax.swing.JTextField;
 
-public class AppTextField<T extends JTextComponent> extends JTextComponent
+public class AppTextField extends JTextField
 {
 	private String regex;
-	private T textField;
 	
-	public AppTextField(String regex, T textField)
+	public AppTextField(String regex)
 	{
 		this.regex = regex;
-		this.textField = textField;
 	}
 	
-	public AppTextField(T textField)
+	public AppTextField()
 	{
 		this.regex = ".*";
-		this.textField = textField;
-	}
-	
-	@Override
-	public void setName(String name)
-	{
-		textField.setName(name);
-	}
-	
-	@Override
-	public String getName()
-	{
-		return this.textField.getName();
 	}
 	
 	public boolean evaluate()
 	{
-		boolean matches = Pattern.matches(regex, textField.getText());
+		boolean matches = Pattern.matches(regex, this.getText());
 		
 		return matches;
 	}
