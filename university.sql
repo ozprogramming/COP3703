@@ -79,7 +79,7 @@ CREATE TABLE SECTION ( #Section entity
 	 FOREIGN KEY (Instructor) REFERENCES INSTRUCTOR(Nnumber);
 );
 
-CREATE TABLE PREREQUISITE ( #Prerequisite entity
+CREATE TABLE PREREQUISITE ( #Prerequisite relationship
 	Cnumber C_NUMBER,
 	Pnumber C_NUMBER,
 	PRIMARY KEY (Cnumber, Pnumber),
