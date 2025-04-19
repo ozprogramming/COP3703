@@ -7,7 +7,7 @@ public class DBC
 	private static Connection conn = null;
 	private final static String url = "jdbc:oracle:thin:@cisvm-oracle.unfcsd.unf.edu:1521:orcl";
 	private final static String uid = "n01577055";
-    private final static String pword = "7055";
+    	private final static String pword = "7055";
 	
 	public static void connect() throws SQLException
 	{
