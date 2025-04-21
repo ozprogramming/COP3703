@@ -64,7 +64,7 @@ public class DatabaseApplication
 	    JButton registerAction = new JButton("Student Course Registration");
 	    JButton gradeAction = new JButton("Student Grade Report");
 	    JButton listAction = new JButton("Course List");
-	    JButton professorAction = new JButton("Professor Courses");
+	    JButton instructorAction = new JButton("Instructor Courses");
 	    JButton prereqAction = new JButton("Prequisite Satisfaction");
 	    
 	    actionHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -72,7 +72,7 @@ public class DatabaseApplication
 	    registerAction.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    gradeAction.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    listAction.setAlignmentX(Component.CENTER_ALIGNMENT);
-	    professorAction.setAlignmentX(Component.CENTER_ALIGNMENT);
+	    instructorAction.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    prereqAction.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    
 	    actionHeader.setMaximumSize(new Dimension(Integer.MAX_VALUE, actionHeader.getPreferredSize().height));
@@ -80,14 +80,14 @@ public class DatabaseApplication
 	    registerAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, registerAction.getPreferredSize().height));
 	    gradeAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, gradeAction.getPreferredSize().height));
 	    listAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, listAction.getPreferredSize().height));
-	    professorAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, professorAction.getPreferredSize().height));
+	    instructorAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, instructorAction.getPreferredSize().height));
 	    prereqAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, prereqAction.getPreferredSize().height));
 	    
 	    insertAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    registerAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    gradeAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    listAction.setHorizontalAlignment(SwingConstants.LEFT);
-	    professorAction.setHorizontalAlignment(SwingConstants.LEFT);
+	    instructorAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    prereqAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    
 	    selectActions.add(Box.createRigidArea(new Dimension(10,25)));
@@ -101,7 +101,7 @@ public class DatabaseApplication
 	    selectActions.add(Box.createRigidArea(new Dimension(10,10)));
 	    selectActions.add(listAction);
 	    selectActions.add(Box.createRigidArea(new Dimension(10,10)));
-	    selectActions.add(professorAction);
+	    selectActions.add(instructorAction);
 	    selectActions.add(Box.createRigidArea(new Dimension(10,10)));
 	    selectActions.add(prereqAction);
 	    
@@ -151,7 +151,7 @@ public class DatabaseApplication
 				e1.printStackTrace();
 			}
 		});
-	    professorAction.addActionListener(e -> {
+	    instructorAction.addActionListener(e -> {
 			try {
 				selection(e);
 			} catch (SQLException e1) {
@@ -193,9 +193,9 @@ public class DatabaseApplication
 		{
 			courseList();
 		}
-		else if (command.equals("Professor Courses"))
+		else if (command.equals("Instructor Courses"))
 		{
-			professorTeaching();
+			instructorTeaching();
 		}
 		else if (command.equals("Prequisite Satisfaction"))
 		{
@@ -213,31 +213,31 @@ public class DatabaseApplication
 	
 	private void courseRegistration() throws SQLException
 	{
-		// TODO Auto-generated method stub
-		
+		RegistrationApp register =  new RegistrationApp();
+		this.action.add(register);
 	}
 	
 	private void gradeReport() throws SQLException
 	{
-		// TODO Auto-generated method stub
-		
+		ReportApp report =  new ReportApp();
+		this.action.add(report);
 	}
 	
 	private void courseList() throws SQLException
 	{
-		// TODO Auto-generated method stub
-		
+		CourseApp courses = new CourseApp();
+		this.action.add(courses);
 	}
 
-	private void professorTeaching() throws SQLException
+	private void instructorTeaching() throws SQLException
 	{
-		// TODO Auto-generated method stub
-		
+		TaughtApp teaching = new TaughtApp();
+		this.action.add(teaching);
 	}
 	
 	private void prereqSatisfy() throws SQLException
 	{
-		// TODO Auto-generated method stub
-		
+		PrereqApp satisfy = new PrereqApp();
+		this.action.add(satisfy);
 	}
 }

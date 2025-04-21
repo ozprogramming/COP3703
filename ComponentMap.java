@@ -2,7 +2,9 @@ import java.awt.Component;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
 public class ComponentMap
@@ -64,7 +66,37 @@ public class ComponentMap
 		else return null;
 	}
 	
-	public void clear()
+	public Object getValue(String name)
+	{
+		Component component = this.getComponent(name);
+		
+		if (component instanceof AppTextField)
+		{
+			return ((AppTextField) component).getText();
+		}
+		else if (component instanceof JComboBox)
+		{
+			return ((JComboBox<?>) component).getSelectedItem();
+		}
+		else if (component instanceof JTable)
+		{
+			Object[] section = new String[4];
+			
+			int row = ((JTable) component).getSelectedRow();
+			int cols = ((JTable) component).getColumnCount();
+			
+			for (int i = 0; i < cols; i++)
+			{
+				section[i] = ((JTable) component).getValueAt(row, i);
+			}
+			
+			return section;
+		}
+		
+		return null;
+	}
+	
+ 	public void clear()
 	{
 		componentMap.clear();
 	}

@@ -28,6 +28,8 @@ public class InsertApp extends JPanel
 	private JPanel form;
 	private ComponentMap components;
 	
+	// Construct Application
+	
 	public InsertApp() throws SQLException
 	{
 		// Initialize Panel
@@ -493,11 +495,11 @@ public class InsertApp extends JPanel
 	
 	// Submit to Database
 	
-	public void submit() throws SQLException
+	private void submit() throws SQLException
 	{
 		if (this.evaluate())
 		{
-			String entity = (String) ((JComboBox<String>) components.getComponent("Entity")).getSelectedItem();
+			String entity = (String) this.components.getValue("Entity");
 			
 			if (entity.equals("Department"))
 			{
@@ -514,8 +516,8 @@ public class InsertApp extends JPanel
 			    deptStmt.setString(1, ((AppTextField) this.components.getComponent("Department Code")).getText());
 			    deptStmt.setString(2, ((AppTextField) this.components.getComponent("Department Name")).getText());
 			    deptStmt.setString(3, ((AppTextField) this.components.getComponent("College")).getText());
-			    deptStmt.setString(3, ((AppTextField) this.components.getComponent("Office Number")).getText());
-			    deptStmt.setString(3, ((AppTextField) this.components.getComponent("Office Phone")).getText());
+			    deptStmt.setString(4, ((AppTextField) this.components.getComponent("Office Number")).getText());
+			    deptStmt.setString(5, ((AppTextField) this.components.getComponent("Office Phone")).getText());
 			    
 				int rows = deptStmt.executeUpdate();
 			    
@@ -746,10 +748,14 @@ public class InsertApp extends JPanel
 				
 				DBC.disconnect();
 			}
+			
+			this.repaint();
+			this.form.repaint();
 		}
-		
-		this.repaint();
-		this.form.repaint();
+		else
+		{
+			System.out.println("Invalid eentries! Please enter correct information.");
+		}
 	}
 	
 	// Auxillary Listing
@@ -838,7 +844,8 @@ public class InsertApp extends JPanel
 				"Freshman",
 				"Sophomore",
 				"Junior",
-				"Senior"
+				"Senior",
+				"Graduate"
 		};
 		
 		return studentClasses;
