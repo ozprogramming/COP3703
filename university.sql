@@ -1,75 +1,68 @@
-/* SPECIFIC DATA TYPES */
-
-CREATE DOMAIN N_NUMBER AS CHAR(9) CONSTRAINT N_NUMBER_FORMAT CHECK (VALUE LIKE "N[0-9]{8}$");
-
-CREATE DOMAIN SSN AS CHAR(11) CONSTRAINT SSN_FORMAT CHECK (VALUE LIKE "[0-9]{3}-[0-9]{2}-[0-9]{4}$");
-
-CREATE DOMAIN PHONE AS CHAR(14) CONSTRAINT PHONE_FORMAT CHECK (VALUE LIKE "\([0-9]{3}\) [0-9]{3}-[0-9]{4}$");
-
-CREATE DOMAIN COURSE_NUMBER AS CHAR(7) CONSTRAINT COURSE_NUMBER_FORMAT CHECK (VALUE LIKE "[A-Z]{3} [0-9]{4}$");
-
-CREATE DOMAIN DEGREE_PROGRAM AS VARCHAR(4) CONSTRAINT DEGREE_PROGRAM_OPTIONS CHECK (VALUE IN ("B.A.", "B.S.", "B.F.A", "M.A.", "M.S.", "M.B.A.", "Ph.D.", "Ed.D.", "J.D."));
-
-CREATE DOMAIN GENDER AS VARCHAR(4,6) CONSTRAINT GENDER_OPTIONS CHECK (VALUE IN ("Male", "Female"));
-
-CREATE DOMAIN STATE AS VARCHAR(4,13) CONSTRAINT STATE_OPTIONS CHECK (VALUE IN ("Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont","Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"));
-
-CREATE DOMAIN DEPARTMENT_CODE AS VARCHAR(1,4) CONSTRAINT DEPARTMENT_CODE_FORMAT CHECK (VALUE LIKE "[A-Z]{1,4}$");
-
-CREATE DOMAIN CLASS AS VARCHAR(6,9) CONSTRAINT CLASS_OPTIONS CHECK (VALUE IN ("Freshman", "Sophomore", "Junior", "Senior", "Graduate"));
-
-CREATE DOMAIN SEMESTER AS VARCHAR(4,8) CONSTRAINT SEMESTER_OPTIONS CHECK (VALUE IN ("Fall", "Spring", "Summer A", "Summer B"));
-
-CREATE DOMAIN YEAR AS DECIMAL(4,0) CONSTRAINT YEAR_RANGE CHECK (VALUE >= 1965 AND VALUE <= 2050);
-
-CREATE DOMAIN GRADE AS VARCHAR(1,2) CONSTRAINT GRADE_OPTIONS CHECK (VALUE IN ("A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"));
-
 /* ENTITIES */
 
-CREATE TABLE PERSON ( -- Person Entity
-	Nnumber N_NUMBER,
+DROP TABLE ENROLLED_IN;
+DROP TABLE PREREQUISITE;
+DROP TABLE SECTION;
+DROP TABLE COURSE;
+DROP TABLE STUDENT;
+DROP TABLE INSTRUCTOR;
+DROP TABLE DEPARTMENT;
+DROP TABLE PERSON;
+
+CREATE TABLE PERSON (
+	Nnumber CHAR(9),
+    
+    CONSTRAINT PERSON_N_NUMBER_FORMAT CHECK (Nnumber LIKE 'N[0-9]{8}$'),
 	
-	Ssn SSN,
+	Ssn CHAR(11),
+    
+    CONSTRAINT SSN_FORMAT CHECK (Ssn LIKE '[0-9]{3}-[0-9]{2}-[0-9]{4}$'),
 	
-	Fname VARCHAR(20),
+	Fname VARCHAR2(20),
 	
 	Minit CHAR,
 	
-	Lname VARCHAR(20),
+	Lname VARCHAR2(20),
 	
-	Phone PHONE,
+	Phone CHAR(14),
+    
+    CONSTRAINT PERSON_PHONE_FORMAT CHECK (Phone LIKE '\([0-9]{3}\) [0-9]{3}-[0-9]{4}$'),
 	
-	Street VARCHAR(30),
+	Street VARCHAR2(30),
 	
-	City VARCHAR(20),
+	City VARCHAR2(20),
 	
-	State STATE,
-	
+	State_ VARCHAR2(13),
+    
+    CONSTRAINT PERSON_STATE_OPTIONS CHECK (State_ IN ('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming')),
+    
 	Zip DECIMAL(5, 0),
 	
-	Bdate DATE;
+	Bdate DATE,
 	
-	Gender GENDER;
-	
-	CONSTRAINT PERSON_PK
+	Gender VARCHAR2(6),
+    
+    CONSTRAINT GENDER_OPTIONS CHECK (Gender IN ('Male', 'Female')),
 	
 	PRIMARY KEY (Nnumber),
 	
-	CONSTRAINT PERSON_SK
-	
-	UNIQUE (Ssn);
+	UNIQUE (Ssn)
 );
 
 CREATE TABLE DEPARTMENT ( -- Department Entity
-	Dcode DEPARTMENT_CODE,
+	Dcode VARCHAR2(4),
+    
+    CONSTRAINT DEPARTMENT_CODE_FORMAT CHECK (Dcode LIKE '[A-Z]{1,4}$'),
 	
-	Dname VARCHAR(30),
+	Dname VARCHAR2(30),
 	
-	Dcollege VARCHAR(30),
+	Dcollege VARCHAR2(30),
 	
 	Onumber DECIMAL(4,0),
 	
-	Ophone PHONE,
+	Ophone CHAR(14),
+    
+    CONSTRAINT DEPARTMENT_PHONE_FORMAT CHECK (Ophone LIKE '\([0-9]{3}\) [0-9]{3}-[0-9]{4}$'),
 	
 	CONSTRAINT DEPARTMENT_PK
 	
@@ -77,13 +70,19 @@ CREATE TABLE DEPARTMENT ( -- Department Entity
 	
 	CONSTRAINT DEPARTMENT_SK
 	
-	UNIQUE (Dname);
+	UNIQUE (Dname)
 );
 
+--DROP TABLE INSTRUCTOR;
+
 CREATE TABLE INSTRUCTOR ( -- Instructor Entity
-	Nnumber N_NUMBER,
+	Nnumber CHAR(9),
+    
+    CONSTRAINT INSTRUCTOR_N_NUMBER_FORMAT CHECK (Nnumber LIKE 'N[0-9]{8}$'),
 	
-	Dept DEPARTMENT_CODE,
+	Dept VARCHAR(4),
+    
+    CONSTRAINT INSTRUCTOR_DCODE_FORMAT CHECK (Dept LIKE '[A-Z]{1,4}$'),
 	
 	Onumber DECIMAL(4,0),
 	
@@ -95,33 +94,43 @@ CREATE TABLE INSTRUCTOR ( -- Instructor Entity
 	
 	FOREIGN KEY (Nnumber) REFERENCES PERSON(Nnumber)
 	
-	ON DELETE CASCADE ON UPDATE CASCADE,
+	ON DELETE CASCADE,
 	
 	CONSTRAINT INSTRUCTOR_DEPARTMENT_FK
 	
 	FOREIGN KEY (Dept) REFERENCES DEPARTMENT(Dcode)
-	
-	ON DELETE RESTRICT ON UPDATE CASCADE;
 );
 
 CREATE TABLE STUDENT ( -- Student Entity
-	Nnumber N_NUMBER,
+	Nnumber CHAR(9),
+    
+    CONSTRAINT STUDENT_N_NUMBER_FORMAT CHECK (Nnumber LIKE 'N[0-9]{8}$'),
 	
-	Curr_street VARCHAR(30),
+	Curr_street VARCHAR2(30),
 	
-	Curr_city VARCHAR(20),
+	Curr_city VARCHAR2(20),
 	
-	Curr_state STATE,
+	Curr_state VARCHAR2(13),
+    
+    CONSTRAINT STUDENT_STATE_OPTIONS CHECK (Curr_state IN ('Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming')),
 	
 	Curr_zip DECIMAL(5,0),
 	
-	Class CLASS,
+	Class_ VARCHAR2(9),
+    
+    CONSTRAINT CLASS_OPTIONS CHECK (Class_ IN ('Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduate')),
 	
-	Degree_pgrm DEGREE_PROGRAM,
+	Degree_pgrm VARCHAR2(4),
+    
+    CONSTRAINT DEGREE_PROGRAM_OPTIONS CHECK (Degree_pgrm IN ('B.A.', 'B.S.', 'B.F.A', 'M.A.', 'M.S.', 'M.B.A.', 'Ph.D.', 'Ed.D.', 'J.D.')),
 	
-	Major_dept DEPARTMENT_CODE,
+	Major_dept VARCHAR2(4),
+    
+    CONSTRAINT MAJOR_DCODE_FORMAT CHECK (Major_dept LIKE '[A-Z]{1,4}$'),
 	
-	Minor_dept DEPARTMENT_CODE,
+	Minor_dept VARCHAR2(4),
+    
+    CONSTRAINT MINOR_DCODE_FORMAT CHECK (Minor_dept LIKE '[A-Z]{1,4}$'),
 	
 	CONSTRAINT STUDENT_PK
 	
@@ -129,35 +138,33 @@ CREATE TABLE STUDENT ( -- Student Entity
 	
 	CONSTRAINT STUDENT_PERSON_FK
 	
-	FOREIGN KEY (Nnumber) REFFERENCES PERSON(Nnumber)
+	FOREIGN KEY (Nnumber) REFERENCES PERSON(Nnumber)
 	
-	ON DELETE CASCADE ON UPDATE CASCADE,
+	ON DELETE CASCADE,
 	
 	CONSTRAINT STUDENT_MAJOR_FK
 	
-	FOREIGN KEY (Major_dept) REFFERENCES DEPARTMENT(Dcode)
-	
-	ON DELETE RESTRICT ON UPDATE CASCADE,
+	FOREIGN KEY (Major_dept) REFERENCES DEPARTMENT(Dcode),
 	
 	CONSTRAINT STUDENT_MINOR_FK
 	
-	FOREIGN KEY (Minor_dept) REFFERENCES DEPARTMENT(Dcode)
+	FOREIGN KEY (Minor_dept) REFERENCES DEPARTMENT(Dcode)
 	
-	ON DELETE SET NULL ON UPDATE CASCADE;
+	ON DELETE SET NULL
 );
 
 CREATE TABLE COURSE ( -- Course Entity
-	Cnumber COURSE_NUMBER,
+	Cnumber CHAR(7) CONSTRAINT COURSE_NUMBER_FORMAT CHECK (Cnumber LIKE '[A-Z]{3} [0-9]{4}$'),
 	
-	Cname VARCHAR(30),
+	Cname VARCHAR2(30),
 	
-	Cdesc VARCHAR(50),
+	Cdesc VARCHAR2(50),
 	
-	Dept DEPARTMENT_CODE,
+	Dept VARCHAR2(4) CONSTRAINT COURSE_DCODE_FORMAT CHECK (Dept LIKE '[A-Z]{1,4}$'),
 	
-	Level DECIMAL(4,0),
+	Level_ DECIMAL(4,0) CONSTRAINT LEVEL_RANGE CHECK (Level_ >= 1000 AND Level_ <= 7000 AND MOD(Level_, 1000) = 0),
 	
-	Hours INT,
+	Hours_ INT CONSTRAINT HOURS_RANGE CHECK (Hours_ > 0 AND Hours_ < 6),
 	
 	CONSTRAINT COURSE_PK
 	
@@ -166,42 +173,40 @@ CREATE TABLE COURSE ( -- Course Entity
 	CONSTRAINT COURSE_DEPARTMENT_FK
 	
 	FOREIGN KEY (Dept) REFERENCES DEPARTMENT(Dcode)
-	
-	ON DELETE RESTRICT ON UPDATE CASCADE;
 );
 
 CREATE TABLE SECTION ( -- Section Entity
-	 Course COURSE_NUMBER,
+	 Course CHAR(7) CONSTRAINT SECTION_CNUMBER_FORMAT CHECK (Course LIKE '[A-Z]{3} [0-9]{4}$'),
 	 
-	 Instructor N_NUMBER,
+	 Instructor CHAR(9) CONSTRAINT INSTRUCTOR_SECTION_N_NUMBER_FORMAT CHECK (Instructor LIKE 'N[0-9]{8}$'),
 	 
-	 Snumber INT,
+	 Snumber INT CONSTRAINT SECTION_NUMBER_RANGE CHECK (Snumber > 0),
 	 
-	 Semester SEMESTER,
+	 Semester VARCHAR2(8) CONSTRAINT SECTION_SEMESTER_OPTIONS CHECK (Semester IN ('Fall', 'Spring', 'Summer A', 'Summer B')),
 	 
-	 Year YEAR,
+	 Year_ DECIMAL(4,0) CONSTRAINT SECTION_YEAR_RANGE CHECK (Year_ >= 1965 AND Year_ <= 2050),
 	 
 	 CONSTRAINT SECTION_PK
 	 
-	 PRIMARY KEY (Course, Snumber, Semester, Year),
+	 PRIMARY KEY (Course, Snumber, Semester, Year_),
 	 
 	 CONSTRAINT SECTION_COURSE_FK
 	 
 	 FOREIGN KEY (Course) REFERENCES COURSE(Cnumber)
 	 
-	 ON DELETE CASCADE ON UPDATE CASCADE,
+	 ON DELETE CASCADE,
 	 
 	 CONSTRAINT SECTION_INSTRUCTOR_FK
 	 
 	 FOREIGN KEY (Instructor) REFERENCES INSTRUCTOR(Nnumber)
 	 
-	 ON DELETE CASCADE ON UPDATE CASCADE;
+	 ON DELETE CASCADE
 );
 
 CREATE TABLE PREREQUISITE ( -- Prerequisite: Course M:N Recurrence Relation
-	Cnumber COURSE_NUMBER,
+	Cnumber CHAR(7) CONSTRAINT PREREQUISITE_CNUMBER_FORMAT CHECK (Cnumber LIKE '[A-Z]{3} [0-9]{4}$'),
 	
-	Pnumber COURSE_NUMBER,
+	Pnumber CHAR(7) CONSTRAINT PREREQUISITE_PNUMBER_FORMAT CHECK (Pnumber LIKE '[A-Z]{3} [0-9]{4}$'),
 	
 	CONSTRAINT PREREQUISITE_PK
 	
@@ -211,48 +216,48 @@ CREATE TABLE PREREQUISITE ( -- Prerequisite: Course M:N Recurrence Relation
 	
 	FOREIGN KEY (Cnumber) REFERENCES COURSE(Cnumber)
 	
-	ON DELETE CASCADE ON UPDATE CASCADE,
+	ON DELETE CASCADE,
 	
 	CONSTRAINT PREREQUISITE_PNUMBER_FK
 	
 	FOREIGN KEY (Pnumber) REFERENCES COURSE(Cnumber)
 	
-	ON DELETE CASCADE ON UPDATE CASCADE,
+	ON DELETE CASCADE,
 	
-	CONSTRAINT NOT_SELF_PREREQUISITE CHECK (Cnumber <> Pnumber);
+	CONSTRAINT NOT_SELF_PREREQUISITE CHECK (Cnumber <> Pnumber)
 );
 
 CREATE TABLE ENROLLED_IN ( -- Enrolled_in: Student M:N Section Relation
-	Student N_NUMBER,
+	Student CHAR(9) CONSTRAINT STUDENT_ENROLLED_N_NUMBER_FORMAT CHECK (Student LIKE 'N[0-9]{8}$'),
 	
-	Course C_NUMBER,
+	Course CHAR(7) CONSTRAINT ENROLLED_CNUMBER_FORMAT CHECK (Course LIKE '[A-Z]{3} [0-9]{4}$'),
 	
-	Semester SEMESTER,
+	Semester VARCHAR2(8) CONSTRAINT ENROLLED_SEMESTER_OPTIONS CHECK (Semester IN ('Fall', 'Spring', 'Summer A', 'Summer B')),
 	
-	Year YEAR,
+	Year_ DECIMAL(4,0) CONSTRAINT ENROLLED_YEAR_RANGE CHECK (Year_ >= 1965 AND Year_ <= 2050),
 	
-	Snumber INT,
+	Snumber INT CONSTRAINT ENROLLED_SNUMBER_RANGE CHECK (Snumber > 0),
 	
-	Grade GRADE,
+	Grade VARCHAR2(2) CONSTRAINT GRADE_OPTIONS CHECK (Grade IN ('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D-', 'D', 'F')),
 	
 	CONSTRAINT ENROLLED_IN_PK
 	
-	PRIMARY KEY (Student, Course, Year, Semester, Snumber),
+	PRIMARY KEY (Student, Course, Year_, Semester, Snumber),
 	
 	CONSTRAINT ENROLLED_IN_STUDENT_FK
 	
 	FOREIGN KEY (Student) REFERENCES STUDENT(Nnumber)
 	
-	ON DELETE CASCADE ON UPDATE CASCADE,
+	ON DELETE CASCADE,
 	
 	CONSTRAINT ENROLLED_IN_SECTION_FK
 	
-	FOREIGN KEY (Course, Year, Semester, Snumber) REFERENCES SECTION(Course, Year, Semester, Snumber)
+	FOREIGN KEY (Course, Year_, Semester, Snumber) REFERENCES SECTION(Course, Year_, Semester, Snumber)
 	
-	ON DELETE CASCADE ON UPDATE CASCADE;
+	ON DELETE CASCADE
 );
 
-/* TRIGGERS */
+/* TRIGGERS 
 
 CREATE TRIGGER BEFORE_INSERT_SECTION
 BEFORE INSERT ON SECTION
@@ -267,31 +272,4 @@ BEGIN
       AND Year = NEW.Year;
 
     SET NEW.Snumber = Max_snumber + 1;
-END;
-
-/*
-INSERT INTO DEPARTMENT VALUES ("CS", "Engineering", "Computer science", 1167, "904-567-1234");
-
-INSERT INTO PERSON VALUES ("N02345678", "345-22-1567", "Alex", None, "Smith", "904-123-6588", "1223 West Drive", "Jacksonville", "FL", 36182, "08/12/2024", "M");
-INSERT INTO STUDENT VALUES ("N02345678", "123 West Drive", "Jacksonville", "FL", 36182, "Freshman", "B.S.", "CS", None);
-
-INSERT INTO COURSE VALUES ("COP3503", "Programming II", "Teach Java", "CS", 3000, 3);
-
-INSERT INTO COURSE VALUES ("COP3703", "Databases", "Introduce Databases", "CS", 3000, 3);
-INSERT INTO PREREQUISITE VALUES ("COP3703", "COP3503");
-
-INSERT INTO PERSON VALUES ("N04567123", "250-36-7345", "Dan", None, "Peters", "904-321-1250", "125 Souuth Drive", "Jacksonville", "FL", 36182, "01/01/1980", "M");
-INSERT INTO INSTRUCTOR VALUES ("N04567123", "CS", 5567);
-
-SELECT Cnumber, Cname, Cdesc FROM COURSE WHERE Dept="CS";
-
-INSERT INTO SECTION (Course, Instructor, Semester, Year) VALUES ("COP3503", "N04567123", "Fall", 2020);
-INSERT INTO SECTION (Course, Instructor, Semester, Year) VALUES ("COP3703", "N04567123", "Spring", 2021);
-
-SELECT Course, Semester Year FROM SECTION WHERE Instructor="N04567123";
-
-INSERT INTO ENROLLED_IN VALUES ("N02345678", "COP3503", "Fall", 2020, 1, "A");
-INSERT INTO ENROLLED_IN VALUES ("N02345678", "COP3703", "Spring", 2021, 1, "A");
-
-SELECT PREREQUISITE.Pnumber, ENROLLED_IN.Course FROM PREREQUISITE, ENROLLED_IN WHERE PREREQUISITE.Cnumber="COP3703" AND ENROLLED_IN.Course=PREREQUISITE.Pnumber;
-*/
+END;*/
