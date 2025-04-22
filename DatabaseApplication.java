@@ -67,6 +67,7 @@ public class DatabaseApplication
 	    JButton instructorAction = new JButton("Instructor Courses");
 	    JButton prereqAction = new JButton("Prequisite Satisfaction");
 	    JButton setPrereqAction = new JButton("Set Prerequisites");
+	    JButton studentGradeAction = new JButton("Set Student Grade");
 	    
 	    actionHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    insertAction.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -76,6 +77,7 @@ public class DatabaseApplication
 	    instructorAction.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    prereqAction.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    setPrereqAction.setAlignmentX(Component.CENTER_ALIGNMENT);
+	    studentGradeAction.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    
 	    actionHeader.setMaximumSize(new Dimension(Integer.MAX_VALUE, actionHeader.getPreferredSize().height));
 	    insertAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, insertAction.getPreferredSize().height));
@@ -85,6 +87,7 @@ public class DatabaseApplication
 	    instructorAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, instructorAction.getPreferredSize().height));
 	    prereqAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, prereqAction.getPreferredSize().height));
 	    setPrereqAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, setPrereqAction.getPreferredSize().height));
+	    studentGradeAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, setPrereqAction.getPreferredSize().height));
 	    
 	    insertAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    registerAction.setHorizontalAlignment(SwingConstants.LEFT);
@@ -93,6 +96,7 @@ public class DatabaseApplication
 	    instructorAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    prereqAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    setPrereqAction.setHorizontalAlignment(SwingConstants.LEFT);
+	    studentGradeAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    
 	    selectActions.add(Box.createRigidArea(new Dimension(10,25)));
 	    selectActions.add(actionHeader);
@@ -110,6 +114,8 @@ public class DatabaseApplication
 	    selectActions.add(instructorAction);
 	    selectActions.add(Box.createRigidArea(new Dimension(10,10)));
 	    selectActions.add(prereqAction);
+	    selectActions.add(Box.createRigidArea(new Dimension(10,10)));
+	    selectActions.add(studentGradeAction);
 	    
 	    gbc.gridx = 0;
 	    gbc.weightx = 0.1;
@@ -178,6 +184,13 @@ public class DatabaseApplication
 				e1.printStackTrace();
 			}
 		});
+	    studentGradeAction.addActionListener(e -> {
+			try {
+				selection(e);
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		});
 	    
 	    DBInterface.add(action, gbc);
 	    
@@ -218,6 +231,10 @@ public class DatabaseApplication
 		{
 			setPrereq();
 		}
+		else if (command.equals("Set Student Grade"))
+		{
+			setStudentGrade();
+		}
 		
 		this.action.updateUI();
 	}
@@ -232,6 +249,12 @@ public class DatabaseApplication
 	{
 		SetPrereqApp require =  new SetPrereqApp();
 		this.action.add(require);
+	}
+	
+	private void setStudentGrade() throws SQLException
+	{
+		SetStudentGradeApp set =  new SetStudentGradeApp();
+		this.action.add(set);
 	}
 	
 	private void courseRegistration() throws SQLException
