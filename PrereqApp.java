@@ -69,6 +69,8 @@ public class PrereqApp extends JPanel
 		
 		this.add(submit);
 		
+		this.add(this.list);
+		
 		// Component Map
 		
 		this.components = new ComponentMap(this);
@@ -106,7 +108,7 @@ public class PrereqApp extends JPanel
 		
 		Connection conn = DBC.get();
 		
-		String prereqQuery = "SELECT Pnumber FROM PREREQUISITE WHERE Cnumber=\"?\";";
+		String prereqQuery = "SELECT Pnumber FROM PREREQUISITE WHERE Cnumber=?";
 		
 		PreparedStatement prereqStmt = conn.prepareStatement(prereqQuery);
 		
@@ -122,7 +124,7 @@ public class PrereqApp extends JPanel
 		{
 			String prereq = prereqSet.getString("Pnumber");
 			
-			String satisfyQuery = "SELECT Grade FROM ENROLLED_IN WHERE Student=\"?\" AND Course=\"?\";";
+			String satisfyQuery = "SELECT Grade FROM ENROLLED_IN WHERE Student=? AND Course=?";
 			
 			PreparedStatement satisfyStmt = conn.prepareStatement(satisfyQuery);
 			
@@ -131,7 +133,7 @@ public class PrereqApp extends JPanel
 			
 			ResultSet courses = satisfyStmt.executeQuery();
 			
-			int count = resultSetSize(courses);
+			int count = DBC.queryCount("FROM ENROLLED_IN WHERE Student='" + nNumber + "' AND Course='" + prereq + "'");
 			
 			if (count > 0)
 			{
@@ -141,7 +143,7 @@ public class PrereqApp extends JPanel
 				while (courses.next())
 				{
 					String currentLetterGrade = courses.getString("Grade");
-					double currentCourseGpa = letterToGPA(currentLetterGrade);
+					double currentCourseGpa = Utilities.letterToGPA(currentLetterGrade);
 					
 					if (currentCourseGpa > courseGpa)
 					{
@@ -167,86 +169,29 @@ public class PrereqApp extends JPanel
 				
 				satisfied = false;
 			}
+			
+			satisfyStmt.close();
+			
+			courses.close();
 		}
+		
+		prereqSet.close();
+		
+		prereqStmt.close();
+		
+		DBC.disconnect();
 		
 		if (satisfied)
 		{
 			this.list.add(new JLabel(code + ": Prerequisites are Satisfied"));
+			
 		}
 		else
 		{
 			this.list.add(new JLabel(code + ": Prerequisites are Not Satisfied"));
 		}
 		
-		DBC.disconnect();
-	}
-	
-	private int resultSetSize(ResultSet rs) throws SQLException
-	{
-		int count = 0;
-		
-        if (rs != null)
-        {
-            rs.beforeFirst();
-
-            while (rs.next())
-            {
-                count++;
-            }
-            
-            rs.beforeFirst();
-        }
-        
-        return count;
-	}
-	
-	private double letterToGPA(String grade)
-	{
-		if (grade.equals("A"))
-		{
-			return 4.0;
-		}
-		else if (grade.equals("A-"))
-		{
-			return 3.7;
-		}
-		else if (grade.equals("B+"))
-		{
-			return 3.3;
-		}
-		else if (grade.equals("B"))
-		{
-			return 3.0;
-		}
-		else if (grade.equals("B-"))
-		{
-			return 2.7;
-		}
-		else if (grade.equals("C+"))
-		{
-			return 2.3;
-		}
-		else if (grade.equals("C"))
-		{
-			return 2.0;
-		}
-		else if (grade.equals("C-"))
-		{
-			return 1.7;
-		}
-		else if (grade.equals("D+"))
-		{
-			return 1.3;
-		}
-		else if (grade.equals("D"))
-		{
-			return 1.0;
-		}
-		else if (grade.equals("F"))
-		{
-			return 0.0;
-		}
-		
-		return 0;
+		this.list.updateUI();
+		this.updateUI();
 	}
 }

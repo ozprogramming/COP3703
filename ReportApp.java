@@ -110,14 +110,20 @@ public class ReportApp extends JPanel
 		
 		Connection conn = DBC.get();
 		
-		String personQuery = "SELECT Fname, Minit, Lname, Phone, Street, City, State, Zip, Bdate, Gender FROM PERSON WHERE Nnumber=\"" + nNumber + "\";";
-		String studentQuery = "SELECT Curr_street, Curr_city, Curr_state, Curr_zip, Class, Degree_pgrm, Major_dept, Minor_dept FROM STUDENT WHERE Nnumber=\"" + nNumber + "\";";
+		String personQuery = "SELECT Fname, Minit, Lname, Phone, Street, City, State_, Zip, Bdate, Gender FROM PERSON WHERE Nnumber=?";
+		String studentQuery = "SELECT Curr_street, Curr_city, Curr_state, Curr_zip, Class_, Degree_pgrm, Major_dept, Minor_dept FROM STUDENT WHERE Nnumber=?";
 		
 		PreparedStatement personStmt = conn.prepareStatement(personQuery);
 		PreparedStatement studentStmt = conn.prepareStatement(studentQuery);
 		
+		personStmt.setString(1, nNumber);
+		studentStmt.setString(1, nNumber);
+		
 		ResultSet personSet = personStmt.executeQuery();
 		ResultSet studentSet = studentStmt.executeQuery();
+		
+		personSet.next();
+		studentSet.next();
 		
 		String fName = personSet.getString("Fname");
 		String mInit = personSet.getString("Minit");
@@ -125,7 +131,7 @@ public class ReportApp extends JPanel
 		String phone = personSet.getString("Phone");
 		String pStreet = personSet.getString("Street");
 		String pCity = personSet.getString("City");
-		String pState = personSet.getString("State");
+		String pState = personSet.getString("State_");
 		String pZip = personSet.getString("Zip");
 		String cStreet = studentSet.getString("Curr_street");
 		String cCity = studentSet.getString("Curr_city");
@@ -133,7 +139,7 @@ public class ReportApp extends JPanel
 		String cZip = studentSet.getString("Curr_zip");
 		Date bDate = personSet.getDate("Bdate");
 		String gender = personSet.getString("Gender");
-		String studentClass = studentSet.getString("Class");
+		String studentClass = studentSet.getString("Class_");
 		String degreePgrm = studentSet.getString("Degree_pgrm");
 		String major = studentSet.getString("Major_dept");
 		String minor = studentSet.getString("Minor_dept");
@@ -149,6 +155,12 @@ public class ReportApp extends JPanel
 		this.report.add(new JLabel("Major: " + major));
 		this.report.add(new JLabel("Minor: " + minor));
 		
+		personStmt.close();
+		studentStmt.close();
+		
+		personSet.close();
+		studentSet.close();
+		
 		DBC.disconnect();
 
 		// Get Enrolled Sections from Database
@@ -157,7 +169,7 @@ public class ReportApp extends JPanel
 		
 		conn = DBC.get();
 		
-		String courseQuery = "SELECT Course, Grade FROM ENROLLED_IN WHERE Student=\"?\";";
+		String courseQuery = "SELECT Course, Grade FROM ENROLLED_IN WHERE Student=?";
 		
 		PreparedStatement courseStmt = conn.prepareStatement(courseQuery);
 		
@@ -165,7 +177,7 @@ public class ReportApp extends JPanel
 		
 		ResultSet courseSet = courseStmt.executeQuery();
 		
-		int courseCount = resultSetSize(courseSet);
+		int courseCount = DBC.queryCount("FROM ENROLLED_IN WHERE Student='" + nNumber + "'");
 		
 		String[] header = {"Course", "Letter Grade", "Course GPA"};
 		
@@ -179,7 +191,7 @@ public class ReportApp extends JPanel
 			
 			courses[i][0] = courseSet.getString("Course");
 			courses[i][1] = grade;
-			courses[i][2] = letterToGPA(grade);
+			courses[i][2] = Utilities.letterToGPA(grade);
 		}
 		
 		JTable table = new JTable(new DefaultTableModel(courses, header));
@@ -213,73 +225,5 @@ public class ReportApp extends JPanel
 		this.report.updateUI();
 		this.updateUI();
 	}
-	
-	private int resultSetSize(ResultSet rs) throws SQLException
-	{
-		int count = 0;
-		
-        if (rs != null)
-        {
-            rs.beforeFirst();
 
-            while (rs.next())
-            {
-                count++;
-            }
-            
-            rs.beforeFirst();
-        }
-        
-        return count;
-	}
-
-	private double letterToGPA(String grade)
-	{
-		if (grade.equals("A"))
-		{
-			return 4.0;
-		}
-		else if (grade.equals("A-"))
-		{
-			return 3.7;
-		}
-		else if (grade.equals("B+"))
-		{
-			return 3.3;
-		}
-		else if (grade.equals("B"))
-		{
-			return 3.0;
-		}
-		else if (grade.equals("B-"))
-		{
-			return 2.7;
-		}
-		else if (grade.equals("C+"))
-		{
-			return 2.3;
-		}
-		else if (grade.equals("C"))
-		{
-			return 2.0;
-		}
-		else if (grade.equals("C-"))
-		{
-			return 1.7;
-		}
-		else if (grade.equals("D+"))
-		{
-			return 1.3;
-		}
-		else if (grade.equals("D"))
-		{
-			return 1.0;
-		}
-		else if (grade.equals("F"))
-		{
-			return 0.0;
-		}
-		
-		return 0;
-	}
 }

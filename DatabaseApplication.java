@@ -66,6 +66,7 @@ public class DatabaseApplication
 	    JButton listAction = new JButton("Course List");
 	    JButton instructorAction = new JButton("Instructor Courses");
 	    JButton prereqAction = new JButton("Prequisite Satisfaction");
+	    JButton setPrereqAction = new JButton("Set Prerequisites");
 	    
 	    actionHeader.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    insertAction.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -74,6 +75,7 @@ public class DatabaseApplication
 	    listAction.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    instructorAction.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    prereqAction.setAlignmentX(Component.CENTER_ALIGNMENT);
+	    setPrereqAction.setAlignmentX(Component.CENTER_ALIGNMENT);
 	    
 	    actionHeader.setMaximumSize(new Dimension(Integer.MAX_VALUE, actionHeader.getPreferredSize().height));
 	    insertAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, insertAction.getPreferredSize().height));
@@ -82,6 +84,7 @@ public class DatabaseApplication
 	    listAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, listAction.getPreferredSize().height));
 	    instructorAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, instructorAction.getPreferredSize().height));
 	    prereqAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, prereqAction.getPreferredSize().height));
+	    setPrereqAction.setMaximumSize(new Dimension(Integer.MAX_VALUE, setPrereqAction.getPreferredSize().height));
 	    
 	    insertAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    registerAction.setHorizontalAlignment(SwingConstants.LEFT);
@@ -89,11 +92,14 @@ public class DatabaseApplication
 	    listAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    instructorAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    prereqAction.setHorizontalAlignment(SwingConstants.LEFT);
+	    setPrereqAction.setHorizontalAlignment(SwingConstants.LEFT);
 	    
 	    selectActions.add(Box.createRigidArea(new Dimension(10,25)));
 	    selectActions.add(actionHeader);
 	    selectActions.add(Box.createRigidArea(new Dimension(10,25)));
 	    selectActions.add(insertAction);
+	    selectActions.add(Box.createRigidArea(new Dimension(10,10)));
+	    selectActions.add(setPrereqAction);
 	    selectActions.add(Box.createRigidArea(new Dimension(10,10)));
 	    selectActions.add(registerAction);
 	    selectActions.add(Box.createRigidArea(new Dimension(10,10)));
@@ -165,6 +171,13 @@ public class DatabaseApplication
 				e1.printStackTrace();
 			}
 		});
+	    setPrereqAction.addActionListener(e -> {
+			try {
+				selection(e);
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		});
 	    
 	    DBInterface.add(action, gbc);
 	    
@@ -201,6 +214,10 @@ public class DatabaseApplication
 		{
 			prereqSatisfy();
 		}
+		else if (command.equals("Set Prerequisites"))
+		{
+			setPrereq();
+		}
 		
 		this.action.updateUI();
 	}
@@ -209,6 +226,12 @@ public class DatabaseApplication
 	{
 		InsertApp insert = new InsertApp();
 		this.action.add(insert);
+	}
+	
+	private void setPrereq() throws SQLException
+	{
+		SetPrereqApp require =  new SetPrereqApp();
+		this.action.add(require);
 	}
 	
 	private void courseRegistration() throws SQLException

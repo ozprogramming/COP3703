@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -39,29 +40,9 @@ public class RegistrationApp extends JPanel
 		AppTextField nNumber = new AppTextField();
 		nNumber.setName("N-Number");
 		
-		// Get Courses from Database
-		
-		DBC.connect();
-		
-		Connection conn = DBC.get();
-		
-		String courseQuery = "SELECT Cnumber FROM COURSE";
-		
-		PreparedStatement courseStmt = conn.prepareStatement(courseQuery);
-		
-		ResultSet courseSet = courseStmt.executeQuery();
-		
-		DBC.disconnect();
-		
 		// Course Dropdown
 		
-		JComboBox<String> course = new JComboBox<>();
-		
-		while (courseSet.next())
-		{
-			String courseCode = courseSet.getString("Cnumber");
-			course.addItem(courseCode);
-		}
+		JComboBox<String> course = new JComboBox<>(DBC.Courses());
 		
 		course.setName("Course");
 		
@@ -85,19 +66,37 @@ public class RegistrationApp extends JPanel
 		
 		DBC.connect();
 		
-		conn = DBC.get();
+		Connection conn = DBC.get();
 		
-		String sectionQuery = "SELECT Instructor, Semester, Year, Snumber FROM COURSE WHERE Course=\"" + (String) course.getSelectedItem() + "\";";
+		String sectionQuery = "SELECT Instructor, Semester, Year_, Snumber FROM SECTION WHERE Course=?";
 		
 		PreparedStatement sectionStmt = conn.prepareStatement(sectionQuery);
 		
+		// Get Course Number from Course Name
+		
+		String cNumberQuery = "SELECT Cnumber FROM COURSE WHERE Cname=?";
+	    
+	    PreparedStatement cNumberStmt = conn.prepareStatement(cNumberQuery);
+	    
+	    cNumberStmt.setString(1, (String) course.getSelectedItem());
+	    
+	    ResultSet cNumberSet = cNumberStmt.executeQuery();  
+	    
+	    cNumberSet.next();
+	    
+	    String cNumber = cNumberSet.getString("Cnumber");
+	    
+	    cNumberStmt.close();
+	    
+	    cNumberSet.close();
+	    
+	    sectionStmt.setString(1, cNumber);
+		
 		ResultSet sectionSet = sectionStmt.executeQuery();
 		
-		DBC.disconnect();
+		int sectionCount = DBC.queryCount("SELECT Instructor, Semester, Year_, Snumber FROM SECTION WHERE Course='" + cNumber + "'");
 		
 		// Section Table
-		
-		int sectionCount = resultSetSize(sectionSet);
 		
 		String[] header = {"Instructor", "Semester", "Year", "Section Number"};
 		Object[][] sections = new Object[sectionCount][4];
@@ -108,9 +107,13 @@ public class RegistrationApp extends JPanel
 			
 			sections[i][0] = sectionSet.getString("Instructor");
 			sections[i][1] = sectionSet.getString("Semester");
-			sections[i][2] = sectionSet.getBigDecimal("Year");
-			sections[i][3] = sectionSet.getInt("Section Number");
+			sections[i][2] = sectionSet.getBigDecimal("Year_");
+			sections[i][3] = sectionSet.getInt("Snumber");
 		}
+		
+		sectionSet.close();
+		
+		DBC.disconnect();
 		
 		JTable table = new JTable(new DefaultTableModel(sections, header));
 		table.setName("Sections");
@@ -118,8 +121,25 @@ public class RegistrationApp extends JPanel
 		
 		// Submit Button
 		
-		JButton submitButton = new JButton("Enroll Student in Course");
-		submitButton.setName("Enrollment Button");
+		JButton submit = new JButton("Enroll Student in Course");
+		
+		submit.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				try
+				{
+					submit();
+				}
+				catch (SQLException error)
+				{
+					error.printStackTrace();
+				}
+			}
+		});
+		
+		submit.setName("Enrollment Button");
 		
 		// Add Components
 		
@@ -132,11 +152,12 @@ public class RegistrationApp extends JPanel
 		this.add(new JLabel("Sections:"));
 		this.add(scrollPane);
 
-		this.add(submitButton);
+		this.add(submit);
 		
 		// Create Component Map
 		
 		this.components = new ComponentMap(this);
+		this.components.append(table);
 	}
 	
 	// Update Application
@@ -153,20 +174,36 @@ public class RegistrationApp extends JPanel
 		
 		Connection conn = DBC.get();
 		
-		String sectionQuery = "SELECT Instructor, Semester, Year, Snumber FROM COURSE WHERE Course=" + course + ";";
+		String sectionQuery = "SELECT Instructor, Semester, Year_, Snumber FROM SECTION WHERE Course=?";
 		
 		PreparedStatement sectionStmt = conn.prepareStatement(sectionQuery);
 		
+		String cNumberQuery = "SELECT Cnumber FROM COURSE WHERE Cname=?";
+	    
+	    PreparedStatement cNumberStmt = conn.prepareStatement(cNumberQuery);
+	    
+	    cNumberStmt.setString(1, (String) this.components.getValue("Course"));
+	    
+	    ResultSet cNumberSet = cNumberStmt.executeQuery();  
+	    
+	    cNumberSet.next();
+	    
+	    String cNumber = cNumberSet.getString("Cnumber");
+	    
+	    cNumberStmt.close();
+	    
+	    cNumberSet.close();
+	    
+	    sectionStmt.setString(1, cNumber);
+		
 		ResultSet sectionSet = sectionStmt.executeQuery();
 		
-		DBC.disconnect();
+		int sectionCount = DBC.queryCount("SELECT Instructor, Semester, Year_, Snumber FROM SECTION WHERE Course='" + cNumber + "'");
 		
 		// Repopulate Table
 		
-		int sectionCount = resultSetSize(sectionSet);
-		
 		String[] header = {"Instructor", "Semester", "Year", "Section Number"};
-		String[][] sections = new String[sectionCount][4];
+		Object[][] sections = new Object[sectionCount][4];
 		
 		for (int i = 0; i < sectionCount; i++)
 		{
@@ -174,8 +211,8 @@ public class RegistrationApp extends JPanel
 			
 			sections[i][0] = sectionSet.getString("Instructor");
 			sections[i][1] = sectionSet.getString("Semester");
-			sections[i][2] = sectionSet.getString("Year");
-			sections[i][3] = sectionSet.getString("Section Number");
+			sections[i][2] = sectionSet.getBigDecimal("Year_");
+			sections[i][3] = sectionSet.getInt("Snumber");
 		}
 		
 		table.setModel(new DefaultTableModel(sections, header));
@@ -200,49 +237,38 @@ public class RegistrationApp extends JPanel
 			
 			Connection conn = DBC.get();
 			
-			String query = "INSERT INTO ENROLLED_IN VALUES (?, ?, ?, ?, ?, ?);";
+			String query = "INSERT INTO ENROLLED_IN VALUES (?, ?, ?, ?, ?, 'A')";
 
 		    PreparedStatement stmt = conn.prepareStatement(query);
 		    
-		    Object[] section = (Object[]) this.components.getValue("Sections");
+		    String cNumberQuery = "SELECT Cnumber FROM COURSE WHERE Cname=?";
+		    
+		    PreparedStatement cNumberStmt = conn.prepareStatement(cNumberQuery);
+		    
+		    cNumberStmt.setString(1, (String) this.components.getValue("Course"));
+		    
+		    ResultSet cNumberSet = cNumberStmt.executeQuery();  
+		    
+		    cNumberSet.next();
+		    
+		    String cNumber = cNumberSet.getString("Cnumber");
+		    
+		    cNumberStmt.close();
+		    
+		    cNumberSet.close();
+		    
+		    JTable sections = ((JTable) this.components.getComponent("Sections"));
+		    int row = sections.getSelectedRow();
 		    
 		    stmt.setString(1, (String) this.components.getValue("N-Number"));
-		    stmt.setString(2, (String) this.components.getValue("Course"));
-		    stmt.setString(3, (String) section[1]);
-		    stmt.setString(4, (String) section[2]);
-		    stmt.setString(5, (String) section[3]);
+		    stmt.setString(2, cNumber);
+		    stmt.setString(3, (String) sections.getValueAt(row, 1));
+		    stmt.setBigDecimal(4, (BigDecimal) sections.getValueAt(row, 2));
+		    stmt.setInt(5, (int) sections.getValueAt(row, 3));
 		    
-			int rows = stmt.executeUpdate();
-		    
-		    if (rows > 0)
-		    {
-		    	System.out.println("Student successfully registered.");
-		    }
-		    else
-		    {
-		    	System.out.println("Failed to register student.");
-		    }
+			stmt.executeQuery();
 			
 			DBC.disconnect();
 		}
-	}
-	
-	private int resultSetSize(ResultSet rs) throws SQLException
-	{
-		int count = 0;
-		
-        if (rs != null)
-        {
-            rs.beforeFirst();
-
-            while (rs.next())
-            {
-                count++;
-            }
-            
-            rs.beforeFirst();
-        }
-        
-        return count;
 	}
 }

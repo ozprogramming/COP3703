@@ -5,7 +5,9 @@ import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -106,7 +108,7 @@ public class InsertApp extends JPanel
 	{
 		JButton submit = (JButton) components.getComponent("Submit");
 		
-		String entity = (String) ((JComboBox<String>) components.getComponent("Entity")).getSelectedItem();
+		String entity = (String) this.components.getValue("Entity");
 		
 		this.form.removeAll();
 		
@@ -129,6 +131,10 @@ public class InsertApp extends JPanel
 			AppTextField college = new AppTextField();
 			college.setName("College");
 			
+			// Office Phone
+			AppTextField oPhone = new AppTextField();
+			oPhone.setName("Office Phone");
+			
 			// Add Components
 			
 			this.form.add(new JLabel("Department Code:"));
@@ -142,6 +148,9 @@ public class InsertApp extends JPanel
 			
 			this.form.add(new JLabel("Office Number:"));
 			this.form.add(oNum);
+			
+			this.form.add(new JLabel("Office Phone:"));
+			this.form.add(oPhone);
 		}
 		else if (entity.equals("Student"))
 		{
@@ -175,10 +184,10 @@ public class InsertApp extends JPanel
 			
 			// Permanent City
 			AppTextField pCity = new AppTextField();
-			pCity.setName("Permananent City");
+			pCity.setName("Permanent City");
 			
 			// Permanent State
-			JComboBox<String> pState = new JComboBox<>(AmericanStates());
+			JComboBox<String> pState = new JComboBox<>(Utilities.AmericanStates());
 			pState.setName("Permanent State");
 			
 			// Permanent ZIP
@@ -194,7 +203,7 @@ public class InsertApp extends JPanel
 			cCity.setName("Current City");
 			
 			// Current State
-			JComboBox<String> cState = new JComboBox<>(AmericanStates());
+			JComboBox<String> cState = new JComboBox<>(Utilities.AmericanStates());
 			cState.setName("Current State");
 
 			// Current ZIP
@@ -202,30 +211,34 @@ public class InsertApp extends JPanel
 			cZip.setName("Current ZIP");
 			
 			// Gender
-			JComboBox<String> gender = new JComboBox<>(Genders());
+			JComboBox<String> gender = new JComboBox<>(Utilities.Genders());
 			gender.setName("Gender");
 			
 			// Birthdate
 			Calendar calendar = Calendar.getInstance();
 	        Date initialDate = calendar.getTime();
+	        String dateFormat = "MM/dd/yyyy";
+	        SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
 	        SpinnerDateModel dateModel = new SpinnerDateModel(initialDate, null, null, Calendar.DAY_OF_MONTH);
 	        JSpinner bDate = new JSpinner(dateModel);
+	        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(bDate, dateFormat);
+	        bDate.setEditor(dateEditor);
 	        bDate.setName("Birthdate");
 	        
 	        // Class
-			JComboBox<String> studentClass = new JComboBox<>(StudentClasses());
+			JComboBox<String> studentClass = new JComboBox<>(Utilities.StudentClasses());
 			studentClass.setName("Class");
 			
 			// Degree Program
-			JComboBox<String> program = new JComboBox<>(DegreePrograms());
+			JComboBox<String> program = new JComboBox<>(Utilities.DegreePrograms());
 			program.setName("Degree Program");
 			
 			// Major Department
-			JComboBox<String> major = new JComboBox<>(Departments());
+			JComboBox<String> major = new JComboBox<>(DBC.Departments());
 			major.setName("Major Department");
 			
 			// Minor Department
-			JComboBox<String> minor = new JComboBox<>(Departments());
+			JComboBox<String> minor = new JComboBox<>(DBC.Departments());
 			minor.setName("Minor Department");
 			
 			// Add Components
@@ -325,7 +338,7 @@ public class InsertApp extends JPanel
 			city.setName("City");
 			
 			// State
-			JComboBox<String> state = new JComboBox<>(AmericanStates());
+			JComboBox<String> state = new JComboBox<>(Utilities.AmericanStates());
 			state.setName("State");
 			
 			// ZIP
@@ -333,18 +346,22 @@ public class InsertApp extends JPanel
 			zip.setName("ZIP");
 			
 			// Gender
-			JComboBox<String> gender = new JComboBox<>(Genders());
+			JComboBox<String> gender = new JComboBox<>(Utilities.Genders());
 			gender.setName("Gender");
 			
 			// Birthdate
 			Calendar calendar = Calendar.getInstance();
 	        Date initialDate = calendar.getTime();
+	        String dateFormat = "MM/dd/yyyy";
+	        SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
 	        SpinnerDateModel dateModel = new SpinnerDateModel(initialDate, null, null, Calendar.DAY_OF_MONTH);
 	        JSpinner bDate = new JSpinner(dateModel);
+	        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(bDate, dateFormat);
+	        bDate.setEditor(dateEditor);
 	        bDate.setName("Birthdate");
 			
 			// Department
-			JComboBox<String> dept = new JComboBox<>(Departments());
+			JComboBox<String> dept = new JComboBox<>(DBC.Departments());
 			dept.setName("Department");
 			
 			// Office Number
@@ -410,15 +427,15 @@ public class InsertApp extends JPanel
 			desc.setName("Course Description");
 			
 			// Department
-			JComboBox<String> dept = new JComboBox<>(Departments());
+			JComboBox<String> dept = new JComboBox<>(DBC.Departments());
 			dept.setName("Department");
 			
 			// Level
-			JComboBox<Integer> level = new JComboBox<>(Levels());
+			JComboBox<Integer> level = new JComboBox<>(Utilities.Levels());
 			level.setName("Course Level");
 			
 			// Credit Hours
-			JComboBox<Integer> credits = new JComboBox<>(Credits());
+			JComboBox<Integer> credits = new JComboBox<>(Utilities.Credits());
 			credits.setName("Credit Hours");
 			
 			// Add Components
@@ -444,15 +461,15 @@ public class InsertApp extends JPanel
 		else if (entity.equals("Section"))
 		{
 			// Course
-			JComboBox<String> course = new JComboBox<>(Courses());
+			JComboBox<String> course = new JComboBox<>(DBC.Courses());
 			course.setName("Course");
 			
 			// Instructor
-			JComboBox<String> instructor = new JComboBox<>(Instructors());
+			JComboBox<String> instructor = new JComboBox<>(DBC.Instructors());
 			instructor.setName("Instructor");
 			
 			// Semester
-			JComboBox<String> semester = new JComboBox<>(Semesters());
+			JComboBox<String> semester = new JComboBox<>(Utilities.Semesters());
 			semester.setName("Semester");
 			
 			// Year
@@ -509,27 +526,20 @@ public class InsertApp extends JPanel
 				
 				Connection conn = DBC.get();
 				
-				String deptQuery = "INSERT INTO DEPARTMENT VALUES (?, ?, ?, ?, ?, ?);";
+				String deptQuery = "INSERT INTO DEPARTMENT VALUES (?, ?, ?, ?, ?)";
 
 			    PreparedStatement deptStmt = conn.prepareStatement(deptQuery);
 			    
-			    deptStmt.setString(1, ((AppTextField) this.components.getComponent("Department Code")).getText());
-			    deptStmt.setString(2, ((AppTextField) this.components.getComponent("Department Name")).getText());
-			    deptStmt.setString(3, ((AppTextField) this.components.getComponent("College")).getText());
-			    deptStmt.setString(4, ((AppTextField) this.components.getComponent("Office Number")).getText());
-			    deptStmt.setString(5, ((AppTextField) this.components.getComponent("Office Phone")).getText());
+			    deptStmt.setString(1, (String) this.components.getValue("Department Code"));
+			    deptStmt.setString(2, (String) this.components.getValue("Department Name"));
+			    deptStmt.setString(3, (String) this.components.getValue("College"));
+			    deptStmt.setBigDecimal(4, new BigDecimal((String) this.components.getValue("Office Number")));
+			    deptStmt.setString(5, (String) this.components.getValue("Office Phone"));
 			    
-				int rows = deptStmt.executeUpdate();
-			    
-			    if (rows > 0)
-			    {
-			    	System.out.println("Department successfully created.");
-			    }
-			    else
-			    {
-			    	System.out.println("Failed to construct department.");
-			    }
+				deptStmt.executeQuery();
 				
+				deptStmt.close();
+			    
 				DBC.disconnect();
 			}
 			else if (entity.equals("Student"))
@@ -540,21 +550,21 @@ public class InsertApp extends JPanel
 				
 				Connection conn = DBC.get();
 				
-				String personQuery = "INSERT INTO PERSON VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+				String personQuery = "INSERT INTO PERSON VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 			    PreparedStatement personStmt = conn.prepareStatement(personQuery);
 			    
-			    personStmt.setString(1, ((AppTextField) this.components.getComponent("N-Number")).getText());
-			    personStmt.setString(2, ((AppTextField) this.components.getComponent("SSN")).getText());
-			    personStmt.setString(3, ((AppTextField) this.components.getComponent("First Name")).getText());
-			    personStmt.setString(4, ((AppTextField) this.components.getComponent("Middle Initial")).getText());
-			    personStmt.setString(5, ((AppTextField) this.components.getComponent("Last Name")).getText());
-			    personStmt.setString(6, ((AppTextField) this.components.getComponent("Phone Number")).getText());
-			    personStmt.setString(7, ((AppTextField) this.components.getComponent("Permanent Street")).getText());
-			    personStmt.setString(8, ((AppTextField) this.components.getComponent("Permanent City")).getText());
-			    personStmt.setString(9, (String) (((JComboBox) this.components.getComponent("Permanent State")).getSelectedItem()));
-			    personStmt.setString(10, ((AppTextField) this.components.getComponent("Permanent ZIP")).getText());
-			    personStmt.setString(12, (String) (((JComboBox) this.components.getComponent("Gender")).getSelectedItem()));
+			    personStmt.setString(1, (String) this.components.getValue("N-Number"));
+			    personStmt.setString(2, (String) this.components.getValue("SSN"));
+			    personStmt.setString(3, (String) this.components.getValue("First Name"));
+			    personStmt.setString(4, (String) this.components.getValue("Middle Initial"));
+			    personStmt.setString(5, (String) this.components.getValue("Last Name"));
+			    personStmt.setString(6, (String) this.components.getValue("Phone Number"));
+			    personStmt.setString(7, (String) this.components.getValue("Permanent Street"));
+			    personStmt.setString(8, (String) this.components.getValue("Permanent City"));
+			    personStmt.setString(9, (String) this.components.getValue("Permanent State"));
+			    personStmt.setString(10, (String) this.components.getValue("Permanent ZIP"));
+			    personStmt.setString(12, (String) this.components.getValue("Gender"));
 			    
 			    Object bDate = ((JSpinner) this.components.getComponent("Birthdate")).getValue();
 			    
@@ -563,16 +573,9 @@ public class InsertApp extends JPanel
 			    	personStmt.setDate(11, new java.sql.Date(((Date) bDate).getTime()));
 			    }
 			    
-			    int personRows = personStmt.executeUpdate();
+			    personStmt.executeQuery();
 			    
-			    if (personRows > 0)
-			    {
-			    	System.out.println("Person successfully created.");
-			    }
-			    else
-			    {
-			    	System.out.println("Failed to construct person.");
-			    }
+			    personStmt.close();
 			    
 				DBC.disconnect();
 				
@@ -582,30 +585,47 @@ public class InsertApp extends JPanel
 				
 				conn = DBC.get();
 				
-				String studentQuery = "INSERT INTO STUDENT VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+				String studentQuery = "INSERT INTO STUDENT VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 			    PreparedStatement studentStmt = conn.prepareStatement(studentQuery);
 			    
-			    studentStmt.setString(1, ((AppTextField) this.components.getComponent("N-Number")).getText());
-			    studentStmt.setString(2, ((AppTextField) this.components.getComponent("Current Street")).getText());
-			    studentStmt.setString(3, ((AppTextField) this.components.getComponent("Current City")).getText());
-			    studentStmt.setString(4, (String) (((JComboBox) this.components.getComponent("Current State")).getSelectedItem()));
-				studentStmt.setString(5, ((AppTextField) this.components.getComponent("Current ZIP")).getText());
-				studentStmt.setString(6, (String) (((JComboBox) this.components.getComponent("Class")).getSelectedItem()));
-				studentStmt.setString(7, (String) (((JComboBox) this.components.getComponent("Degree Program")).getSelectedItem()));
-				studentStmt.setString(8, (String) (((JComboBox) this.components.getComponent("Major Department")).getSelectedItem()));
-				studentStmt.setString(9, (String) (((JComboBox) this.components.getComponent("Minor Department")).getSelectedItem()));
+			    String majorQuery = "SELECT Dcode FROM DEPARTMENT WHERE Dname=?";
+			    String minorQuery = "SELECT Dcode FROM DEPARTMENT WHERE Dname=?";
 			    
-				int studentRows = personStmt.executeUpdate();
+			    PreparedStatement majorStmt = conn.prepareStatement(majorQuery);
+			    PreparedStatement minorStmt = conn.prepareStatement(minorQuery);
 			    
-			    if (studentRows > 0)
-			    {
-			    	System.out.println("Student successfully created.");
-			    }
-			    else
-			    {
-			    	System.out.println("Failed to construct student.");
-			    }
+			    majorStmt.setString(1, (String) this.components.getValue("Major Department"));
+			    minorStmt.setString(1, (String) this.components.getValue("Minor Department"));
+			    
+			    ResultSet majorSet = majorStmt.executeQuery();
+			    ResultSet minorSet = minorStmt.executeQuery();
+			    
+			    majorSet.next();
+			    minorSet.next();
+			    
+			    String majorCode = majorSet.getString("Dcode");
+			    String minorCode = minorSet.getString("Dcode");
+			    
+			    majorStmt.close();
+			    minorStmt.close();
+			    
+			    majorSet.close();
+			    minorSet.close();
+			    
+			    studentStmt.setString(1, (String) this.components.getValue("N-Number"));
+			    studentStmt.setString(2, (String) this.components.getValue("Current Street"));
+			    studentStmt.setString(3, (String) this.components.getValue("Current City"));
+			    studentStmt.setString(4, (String) this.components.getValue("Current State"));
+				studentStmt.setString(5, (String) this.components.getValue("Current ZIP"));
+				studentStmt.setString(6, (String) this.components.getValue("Class"));
+				studentStmt.setString(7, (String) this.components.getValue("Degree Program"));
+				studentStmt.setString(8, majorCode);
+				studentStmt.setString(9, minorCode);
+			    
+				studentStmt.executeQuery();
+			    
+			    studentStmt.close();
 				
 				DBC.disconnect();
 			}
@@ -617,21 +637,21 @@ public class InsertApp extends JPanel
 				
 				Connection conn = DBC.get();
 				
-				String personQuery = "INSERT INTO PERSON VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+				String personQuery = "INSERT INTO PERSON VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 			    PreparedStatement personStmt = conn.prepareStatement(personQuery);
 			    
-			    personStmt.setString(1, ((AppTextField) this.components.getComponent("N-Number")).getText());
-			    personStmt.setString(2, ((AppTextField) this.components.getComponent("SSN")).getText());
-			    personStmt.setString(3, ((AppTextField) this.components.getComponent("First Name")).getText());
-			    personStmt.setString(4, ((AppTextField) this.components.getComponent("Middle Initial")).getText());
-			    personStmt.setString(5, ((AppTextField) this.components.getComponent("Last Name")).getText());
-			    personStmt.setString(6, ((AppTextField) this.components.getComponent("Phone Number")).getText());
-			    personStmt.setString(7, ((AppTextField) this.components.getComponent("Street")).getText());
-			    personStmt.setString(8, ((AppTextField) this.components.getComponent("City")).getText());
-			    personStmt.setString(9, (String) (((JComboBox) this.components.getComponent("State")).getSelectedItem()));
-			    personStmt.setString(10, ((AppTextField) this.components.getComponent("ZIP")).getText());
-			    personStmt.setString(12, (String) (((JComboBox) this.components.getComponent("Gender")).getSelectedItem()));
+			    personStmt.setString(1, (String) this.components.getValue("N-Number"));
+			    personStmt.setString(2, (String) this.components.getValue("SSN"));
+			    personStmt.setString(3, (String) this.components.getValue("First Name"));
+			    personStmt.setString(4, (String) this.components.getValue("Middle Initial"));
+			    personStmt.setString(5, (String) this.components.getValue("Last Name"));
+			    personStmt.setString(6, (String) this.components.getValue("Phone Number"));
+			    personStmt.setString(7, (String) this.components.getValue("Street"));
+			    personStmt.setString(8, (String) this.components.getValue("City"));
+			    personStmt.setString(9, (String) this.components.getValue("State"));
+			    personStmt.setString(10, (String) this.components.getValue("ZIP"));
+			    personStmt.setString(12, (String) this.components.getValue("Gender"));
 			    
 			    Object bDate = ((JSpinner) this.components.getComponent("Birthdate")).getValue();
 			    
@@ -640,16 +660,9 @@ public class InsertApp extends JPanel
 			    	personStmt.setDate(11, new java.sql.Date(((Date) bDate).getTime()));
 			    }
 			    
-			    int personRows = personStmt.executeUpdate();
+			    personStmt.executeQuery();
 			    
-			    if (personRows > 0)
-			    {
-			    	System.out.println("Person successfully created.");
-			    }
-			    else
-			    {
-			    	System.out.println("Failed to construct person.");
-			    }
+			    personStmt.close();
 			    
 				DBC.disconnect();
 				
@@ -659,24 +672,31 @@ public class InsertApp extends JPanel
 				
 				conn = DBC.get();
 				
-				String instructorQuery = "INSERT INTO INSTRUCTOR VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+				String instructorQuery = "INSERT INTO INSTRUCTOR VALUES (?, ?, ?)";
 
 			    PreparedStatement instructorStmt = conn.prepareStatement(instructorQuery);
 			    
-			    instructorStmt.setString(1, ((AppTextField) this.components.getComponent("N-Number")).getText());
-			    instructorStmt.setString(2, (String) (((JComboBox) this.components.getComponent("Department")).getSelectedItem()));
-			    instructorStmt.setBigDecimal(3, new BigDecimal((String) (((AppTextField) this.components.getComponent("Office Number")).getText())));
+			    String deptQuery = "SELECT Dcode FROM DEPARTMENT WHERE Dname=?";
 			    
-				int instructorRows = personStmt.executeUpdate();
+			    PreparedStatement deptStmt = conn.prepareStatement(deptQuery);
 			    
-			    if (instructorRows > 0)
-			    {
-			    	System.out.println("Instructor successfully created.");
-			    }
-			    else
-			    {
-			    	System.out.println("Failed to construct instructor.");
-			    }
+			    deptStmt.setString(1, (String) this.components.getValue("Department"));
+			    
+			    ResultSet deptSet = deptStmt.executeQuery();
+			    
+			    deptSet.next();
+			    
+			    String dept = deptSet.getString("Dcode");
+			    
+			    deptStmt.close();
+			    
+			    instructorStmt.setString(1, (String) this.components.getValue("N-Number"));
+			    instructorStmt.setString(2, dept);
+			    instructorStmt.setBigDecimal(3, new BigDecimal((String) this.components.getValue("Office Number")));
+			    
+			    instructorStmt.executeQuery();
+			    
+			    instructorStmt.close();
 				
 				DBC.disconnect();
 			}
@@ -688,27 +708,34 @@ public class InsertApp extends JPanel
 				
 				Connection conn = DBC.get();
 				
-				String courseQuery = "INSERT INTO COURSE VALUES (?, ?, ?, ?, ?, ?);";
+				String courseQuery = "INSERT INTO COURSE VALUES (?, ?, ?, ?, ?, ?)";
 
 			    PreparedStatement courseStmt = conn.prepareStatement(courseQuery);
 			    
-			    courseStmt.setString(1, ((AppTextField) this.components.getComponent("Course Code")).getText());
-			    courseStmt.setString(2, ((AppTextField) this.components.getComponent("Course Name")).getText());
-			    courseStmt.setString(3, ((AppTextField) this.components.getComponent("Course Description")).getText());
-			    courseStmt.setString(4, (String) (((JComboBox) this.components.getComponent("Department")).getSelectedItem()));
-			    courseStmt.setString(5, (String) (((JComboBox) this.components.getComponent("Course Level")).getSelectedItem()));
-			    courseStmt.setString(6, (String) (((JComboBox) this.components.getComponent("Credit Hours")).getSelectedItem()));
+			    String deptQuery = "SELECT Dcode FROM DEPARTMENT WHERE Dname=?";
 			    
-				int rows = courseStmt.executeUpdate();
+			    PreparedStatement deptStmt = conn.prepareStatement(deptQuery);
 			    
-			    if (rows > 0)
-			    {
-			    	System.out.println("Course successfully created.");
-			    }
-			    else
-			    {
-			    	System.out.println("Failed to construct course.");
-			    }
+			    deptStmt.setString(1, (String) this.components.getValue("Department"));
+			    
+			    ResultSet deptSet = deptStmt.executeQuery();
+			    
+			    deptSet.next();
+			    
+			    String dept = deptSet.getString("Dcode");
+			    
+			    deptStmt.close();
+			    
+			    courseStmt.setString(1, (String) this.components.getValue("Course Code"));
+			    courseStmt.setString(2, (String) this.components.getValue("Course Name"));
+			    courseStmt.setString(3, (String) this.components.getValue("Course Description"));
+			    courseStmt.setString(4, dept);
+			    courseStmt.setBigDecimal(5, new BigDecimal((Integer) this.components.getValue("Course Level")));
+			    courseStmt.setInt(6, (int) this.components.getValue("Credit Hours"));
+			    
+				courseStmt.executeQuery();
+			    
+			    courseStmt.close();
 				
 				DBC.disconnect();
 			}
@@ -720,31 +747,84 @@ public class InsertApp extends JPanel
 				
 				Connection conn = DBC.get();
 				
-				String sectionQuery = "INSERT INTO SECTION (Course, Instructor, Semester, Year) VALUES (?, ?, ?, ?);";
-
+				String sectionQuery = "INSERT INTO SECTION (Course, Instructor, Semester, Year_, Snumber) VALUES (?, ?, ?, ?, ?)";
+				
 			    PreparedStatement sectionStmt = conn.prepareStatement(sectionQuery);
 			    
-			    sectionStmt.setString(1, (String) (((JComboBox) this.components.getComponent("Course")).getSelectedItem()));
-			    sectionStmt.setString(2, (String) (((JComboBox) this.components.getComponent("Instructor")).getSelectedItem()));
-			    sectionStmt.setString(3, (String) (((JComboBox) this.components.getComponent("Semester")).getSelectedItem()));
+			    // Get Course Number by Course Name
+			    
+			    String courseQuery = "SELECT Cnumber FROM COURSE WHERE Cname=?";
+			    
+			    PreparedStatement courseStmt = conn.prepareStatement(courseQuery);
+			    
+			    courseStmt.setString(1, (String) this.components.getValue("Course"));
+			    
+			    ResultSet courseSet = courseStmt.executeQuery();
+			    
+			    courseSet.next();
+			    
+			    String course = courseSet.getString("Cnumber");
+			    
+			    courseStmt.close();
+			    
+			    courseSet.close();
+			    
+			    // Get Instructor N-Number
+			    
+			    String instructorListing = (String) this.components.getValue("Instructor");
+			    
+			    int length = instructorListing.length();
+			    
+			    String instructor = instructorListing.substring(length - 10, length - 1);
+			    
+			    // Derive Necessary Section Number
+			    
+			    String sNumberQuery = "SELECT Snumber FROM SECTION WHERE Course=? AND Semester=? AND Year_=?";
+			    
+			    PreparedStatement sNumberStmt = conn.prepareStatement(sNumberQuery);
+			    
+			    sNumberStmt.setString(1, course);
+			    sNumberStmt.setString(2, (String) this.components.getValue("Semester"));
 			    
 			    Object year = ((JSpinner) this.components.getComponent("Year")).getValue();
 			    
 			    if (year instanceof Integer) // Need to do error checking beforehand
 			    {
-			    	sectionStmt.setInt(4, (int) year);
+			    	sNumberStmt.setBigDecimal(3, new BigDecimal((Integer) year));
 			    }
 			    
-				int rows = sectionStmt.executeUpdate();
+			    ResultSet sNumberSet = sNumberStmt.executeQuery();
 			    
-			    if (rows > 0)
+			    int maxSNumber = 1;
+			    
+			    while (sNumberSet.next())
 			    {
-			    	System.out.println("Section successfully created.");
+			    	int currentSNumber = sNumberSet.getInt("Snumber");
+			    	
+			    	if (currentSNumber >= maxSNumber)
+			    	{
+			    		maxSNumber = currentSNumber + 1;
+			    	}
 			    }
-			    else
+			    
+			    sNumberStmt.close();
+			    
+			    sNumberSet.close();
+			    
+			    sectionStmt.setString(1, course);
+			    sectionStmt.setString(2, instructor);
+			    sectionStmt.setString(3, (String) this.components.getValue("Semester"));
+			    
+			    if (year instanceof Integer) // Need to do error checking beforehand
 			    {
-			    	System.out.println("Failed to construct section.");
+			    	sectionStmt.setBigDecimal(4, new BigDecimal((Integer) year));
 			    }
+			    
+			    sectionStmt.setInt(5, maxSNumber);
+			    
+				sectionStmt.executeQuery();
+			    
+			    sectionStmt.close();
 				
 				DBC.disconnect();
 			}
@@ -754,180 +834,7 @@ public class InsertApp extends JPanel
 		}
 		else
 		{
-			System.out.println("Invalid eentries! Please enter correct information.");
+			System.out.println("Invalid entries! Please enter correct information.");
 		}
-	}
-	
-	// Auxillary Listing
-	
-	private String[] AmericanStates()
-	{
-		String[] americanStates =
-		{
-			"Alabama",
-			"Alaska",
-			"Arizona",
-			"Arkansas",
-			"California",
-			"Colorado",
-			"Connecticut",
-			"Delaware",
-			"Florida",
-			"Georgia",
-			"Hawaii",
-			"Idaho",
-			"Illinois",
-			"Indiana",
-			"Iowa",
-			"Kansas",
-			"Kentucky",
-			"Louisiana",
-			"Maine",
-			"Maryland",
-			"Massachusetts",
-			"Michigan",
-			"Minnesota",
-			"Mississippi",
-			"Missouri",
-			"Montana",
-			"Nebraska",
-			"Nevada",
-			"New Hampshire",
-			"New Jersey",
-			"New Mexico",
-			"New York",
-			"North Carolina",
-			"North Dakota",
-			"Ohio",
-			"Oklahoma",
-			"Oregon",
-			"Pennsylvania",
-			"Rhode Island",
-			"South Carolina",
-			"South Dakota",
-			"Tennessee",
-			"Texas",
-			"Utah",
-			"Vermont",
-			"Virginia",
-			"Washington",
-			"West Virginia",
-			"Wisconsin",
-			"Wyoming"
-		};
-		
-		return americanStates;
-	}
-
-	private String[] DegreePrograms()
-	{
-		String[] degreePrograms =
-		{
-			"B.A.",
-			"B.S.",
-			"B.F.A",
-			"M.A.",
-			"M.S.",
-			"M.B.A.",
-			"Ph.D.",
-			"Ed.D.",
-			"J.D."
-		};
-		
-		return degreePrograms;
-	}
-
-	private String[] StudentClasses()
-	{
-		String[] studentClasses =
-		{
-				"Freshman",
-				"Sophomore",
-				"Junior",
-				"Senior",
-				"Graduate"
-		};
-		
-		return studentClasses;
-	}
-
-	private String[] Genders()
-	{
-		String[] genders = {"Male", "Female"};
-		
-		return genders;
-	}
-
-	private String[] Departments() throws SQLException
-	{
-		DBC.connect();
-		Connection conn = DBC.get();
-		String[] departments = {};
-		DBC.disconnect();
-		
-		return departments;
-	}
-
-	private String[] Courses() throws SQLException
-	{
-		DBC.connect();
-		Connection conn = DBC.get();
-		String[] courses = {};
-		DBC.disconnect();
-		
-		return courses;
-	}
-
-	private String[] Instructors() throws SQLException
-	{
-		DBC.connect();
-		Connection conn = DBC.get();
-		String[] instructors = {};
-		DBC.disconnect();
-		
-		return instructors;
-	}
-	
- 	private Integer[] Levels()
-	{
-		Integer[] levels =
-		{
-			1000,
-			2000,
-			3000,
-			4000,
-			5000,
-			6000,
-			7000
-		};
-		
-		return levels;
-	}
-
-	private Integer[] Credits()
-	{
-		Integer[] credits =
-		{
-			1,
-			2,
-			3,
-			4,
-			5	
-		};
-		
-		return credits;
-	}
-
-	private String[] Semesters()
-	{
-		String[] semesters =
-		{
-			"Fall",
-			"Spring",
-			"Summer A",
-			"Summer B"
-		};
-		
-		return semesters;
 	}
 }

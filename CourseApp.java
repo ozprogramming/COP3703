@@ -1,4 +1,6 @@
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +17,7 @@ import javax.swing.table.DefaultTableModel;
 public class CourseApp extends JPanel
 {
 	private ComponentMap components;
-	private String[][] departments;
+	private JPanel list;
 	
 	// Construct Application
 	
@@ -26,67 +28,79 @@ public class CourseApp extends JPanel
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.setBorder(new LineBorder(Color.GREEN));
 		
-		// Retrieve Departments from Database
+		JComboBox<String> dept = new JComboBox<>(DBC.Departments());
 		
-		DBC.connect();
-		
-		Connection conn = DBC.get();
-		
-		String query = "SELECT Dcode, Dname FROM DEPARTMENT;";
-				
-		PreparedStatement stmt = conn.prepareStatement(query);
-		
-		ResultSet set = stmt.executeQuery();
-		
-		DBC.disconnect();
-		
-		// Department
-		
-		int count = resultSetSize(set);
-		
-		this.departments = new String[count][2];
-		
-		for (int i = 0; i < count; i++)
+		dept.addActionListener(new ActionListener()
 		{
-			set.next();
-			
-			this.departments[i][0] = set.getString("Dcode");
-			this.departments[i][1] = set.getString("Dname");
-		}
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				try 
+				{
+					update();
+				} 
+				catch (SQLException error)
+				{
+					error.printStackTrace();
+				}
+			}
+		});
 		
-		String[] options = new String[count];
-		
-		for (int i = 0; i < count; i++)
-		{
-			options[i] = this.departments[i][0] + ": " + this.departments[i][1];
-		}
-		
-		JComboBox<String> dept = new JComboBox<>(options);
 		dept.setName("Department");
+		
+		// Initialize Listings Panel
+		
+		this.list = new JPanel();
+		
+		this.list.setLayout(new BoxLayout(this.list, BoxLayout.Y_AXIS));
+		this.list.setBorder(new LineBorder(Color.GREEN));
 		
 		// Add Components to Panel
 		
 		this.add(dept);
+		this.add(this.list);
 		
 		// Component Map
 		
 		this.components = new ComponentMap(this);
+		
+		// Populate Courses
+		
+		this.update();
 	}
 	
 	// Update Applicationn
 	
 	public void update() throws SQLException
 	{
-		int selected = ((JComboBox<String>) this.components.getComponent("Department")).getSelectedIndex();
-		String code = this.departments[selected][0];
+		this.list.removeAll();
 		
-		// Get Offered Courses from Database
+		String name = (String) this.components.getValue("Department");
+		
+		// Get Department Code by Department Name
 		
 		DBC.connect();
 		
 		Connection conn = DBC.get();
 		
-		String query = "SELECT Cnumber, Cname, Cdesc FROM COURSE WHERE Dept=\"?\";";
+		String dCodeQuery = "SELECT Dcode FROM DEPARTMENT WHERE Dname=?";
+	    
+	    PreparedStatement dCodeStmt = conn.prepareStatement(dCodeQuery);
+	    
+	    dCodeStmt.setString(1, name);
+	    
+	    ResultSet dCodeSet = dCodeStmt.executeQuery();  
+	    
+	    dCodeSet.next();
+	    
+	    String code = dCodeSet.getString("Dcode");
+	    
+	    dCodeStmt.close();
+	    
+	    dCodeSet.close();
+	    
+	    // Get Offered Courses
+		
+		String query = "SELECT Cnumber, Cname, Cdesc, Level_, Hours_ FROM COURSE WHERE Dept=?";
 		
 		PreparedStatement stmt = conn.prepareStatement(query);
 		
@@ -94,11 +108,9 @@ public class CourseApp extends JPanel
 		
 		ResultSet set = stmt.executeQuery();
 		
-		DBC.disconnect();
+		int count = DBC.queryCount("SELECT Cnumber, Cname, Cdesc, Level_, Hours_ FROM COURSE WHERE Dept='" + code + "'");
 		
-		int count = resultSetSize(set);
-		
-		String[][] courses = new String[count][3];
+		Object[][] courses = new Object[count][5];
 		
 		for (int i = 0; i < count; i++)
 		{
@@ -107,11 +119,19 @@ public class CourseApp extends JPanel
 			courses[i][0] = set.getString("Cnumber");
 			courses[i][1] = set.getString("Cname");
 			courses[i][2] = set.getString("Cdesc");
+			courses[i][3] = set.getBigDecimal("Level_");
+			courses[i][4] = set.getInt("Hours_");
 		}
+		
+		stmt.close();
+		
+		set.close();
+		
+		DBC.disconnect();
 		
 		// Table
 		
-		String[] header = {"Code", "Name", "Description"};
+		String[] header = {"Code", "Name", "Description", "Level", "Credit Hours"};
 		
 		JTable table = new JTable(new DefaultTableModel(courses, header));
 		
@@ -122,27 +142,9 @@ public class CourseApp extends JPanel
 		
 		// Finalize
 		
-		this.add(scrollPane);
+		this.list.add(scrollPane);
 		
+		this.list.updateUI();
 		this.updateUI();
-	}
-	
-	private int resultSetSize(ResultSet rs) throws SQLException
-	{
-		int count = 0;
-		
-        if (rs != null)
-        {
-            rs.beforeFirst();
-
-            while (rs.next())
-            {
-                count++;
-            }
-            
-            rs.beforeFirst();
-        }
-        
-        return count;
 	}
 }

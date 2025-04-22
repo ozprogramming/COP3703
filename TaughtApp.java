@@ -102,19 +102,23 @@ public class TaughtApp extends JPanel
 		
 		Connection conn = DBC.get();
 		
-		String instructorQuery = "SELECT Fname, Lname FROM PERSON WHERE Nnumber=\"?\";";
+		String instructorQuery = "SELECT PERSON.Fname, PERSON.Lname FROM PERSON, INSTRUCTOR WHERE PERSON.Nnumber=INSTRUCTOR.Nnumber AND INSTRUCTOR.Nnumber=?";
 		
 		PreparedStatement instructorStmt = conn.prepareStatement(instructorQuery);
 		
 		instructorStmt.setString(1, nNumber);
 		
 		ResultSet instructorSet = instructorStmt.executeQuery();
-				
-		DBC.disconnect();
 		
 		instructorSet.next();
 		
 		String name = instructorSet.getString("Fname") + " " + instructorSet.getString("Lname");
+		
+		instructorStmt.close();
+		
+		instructorSet.close();
+		
+		DBC.disconnect();
 		
 		// Retrieve Taught Courses from Database
 		
@@ -122,17 +126,31 @@ public class TaughtApp extends JPanel
 		
 		conn = DBC.get();
 		
-		String courseQuery = "SELECT Course FROM SECTION WHERE Instructor=\"?\";";
+		String courseQuery = "SELECT DISTINCT Course FROM SECTION WHERE Instructor=?";
 		
 		PreparedStatement courseStmt = conn.prepareStatement(courseQuery);
 		
 		courseStmt.setString(1, nNumber);
 		
 		ResultSet courseSet = courseStmt.executeQuery();
-				
-		DBC.disconnect();
 		
-		int courseCount = resultSetSize(courseSet);
+		int courseCount = 0;
+		
+		String countQuery = "SELECT COUNT(DISTINCT Course) FROM SECTION WHERE Instructor=?";
+		
+		PreparedStatement countStmt = conn.prepareStatement(countQuery);
+		
+		countStmt.setString(1, nNumber);
+		
+		ResultSet countSet = countStmt.executeQuery();
+		
+		if (countSet.next())
+		{
+			courseCount = countSet.getInt(1);
+		}
+		
+		countStmt.close();
+		countSet.close();
 		
 		String[][] courses = new String[courseCount][1];
 		
@@ -142,6 +160,12 @@ public class TaughtApp extends JPanel
 			
 			courses[i][0] = courseSet.getString("Course");
 		}
+		
+		courseSet.close();
+		
+		courseStmt.close();
+		
+		DBC.disconnect();
 		
 		// Table
 		
@@ -161,24 +185,5 @@ public class TaughtApp extends JPanel
 		
 		this.list.updateUI();
 		this.updateUI();
-	}
-	
-	private int resultSetSize(ResultSet rs) throws SQLException
-	{
-		int count = 0;
-		
-        if (rs != null)
-        {
-            rs.beforeFirst();
-
-            while (rs.next())
-            {
-                count++;
-            }
-            
-            rs.beforeFirst();
-        }
-        
-        return count;
 	}
 }

@@ -12,11 +12,11 @@ DROP TABLE PERSON;
 CREATE TABLE PERSON (
 	Nnumber CHAR(9),
     
-    CONSTRAINT PERSON_N_NUMBER_FORMAT CHECK (Nnumber LIKE 'N[0-9]{8}$'),
+    CONSTRAINT PERSON_N_NUMBER_FORMAT CHECK (REGEXP_LIKE(Nnumber, '^N[0-9]{8}$')),
 	
 	Ssn CHAR(11),
     
-    CONSTRAINT SSN_FORMAT CHECK (Ssn LIKE '[0-9]{3}-[0-9]{2}-[0-9]{4}$'),
+    CONSTRAINT SSN_FORMAT CHECK (REGEXP_LIKE(Ssn, '^[0-9]{3}-[0-9]{2}-[0-9]{4}$')),
 	
 	Fname VARCHAR2(20),
 	
@@ -26,7 +26,7 @@ CREATE TABLE PERSON (
 	
 	Phone CHAR(14),
     
-    CONSTRAINT PERSON_PHONE_FORMAT CHECK (Phone LIKE '\([0-9]{3}\) [0-9]{3}-[0-9]{4}$'),
+    CONSTRAINT PERSON_PHONE_FORMAT CHECK (REGEXP_LIKE(Phone, '^\([0-9]{3}\) [0-9]{3}-[0-9]{4}$')),
 	
 	Street VARCHAR2(30),
 	
@@ -52,7 +52,7 @@ CREATE TABLE PERSON (
 CREATE TABLE DEPARTMENT ( -- Department Entity
 	Dcode VARCHAR2(4),
     
-    CONSTRAINT DEPARTMENT_CODE_FORMAT CHECK (Dcode LIKE '[A-Z]{1,4}$'),
+    CONSTRAINT DEPARTMENT_CODE_FORMAT CHECK (REGEXP_LIKE(Dcode, '^[A-Z]{1,4}$')),
 	
 	Dname VARCHAR2(30),
 	
@@ -62,7 +62,7 @@ CREATE TABLE DEPARTMENT ( -- Department Entity
 	
 	Ophone CHAR(14),
     
-    CONSTRAINT DEPARTMENT_PHONE_FORMAT CHECK (Ophone LIKE '\([0-9]{3}\) [0-9]{3}-[0-9]{4}$'),
+    CONSTRAINT DEPARTMENT_PHONE_FORMAT CHECK (REGEXP_LIKE(Ophone, '^\([0-9]{3}\) [0-9]{3}-[0-9]{4}$')),
 	
 	CONSTRAINT DEPARTMENT_PK
 	
@@ -73,16 +73,14 @@ CREATE TABLE DEPARTMENT ( -- Department Entity
 	UNIQUE (Dname)
 );
 
---DROP TABLE INSTRUCTOR;
-
 CREATE TABLE INSTRUCTOR ( -- Instructor Entity
 	Nnumber CHAR(9),
     
-    CONSTRAINT INSTRUCTOR_N_NUMBER_FORMAT CHECK (Nnumber LIKE 'N[0-9]{8}$'),
+    CONSTRAINT INSTRUCTOR_N_NUMBER_FORMAT CHECK (REGEXP_LIKE(Nnumber, '^N[0-9]{8}$')),
 	
 	Dept VARCHAR(4),
     
-    CONSTRAINT INSTRUCTOR_DCODE_FORMAT CHECK (Dept LIKE '[A-Z]{1,4}$'),
+    CONSTRAINT INSTRUCTOR_DCODE_FORMAT CHECK (REGEXP_LIKE(Dept, '^[A-Z]{1,4}$')),
 	
 	Onumber DECIMAL(4,0),
 	
@@ -104,7 +102,7 @@ CREATE TABLE INSTRUCTOR ( -- Instructor Entity
 CREATE TABLE STUDENT ( -- Student Entity
 	Nnumber CHAR(9),
     
-    CONSTRAINT STUDENT_N_NUMBER_FORMAT CHECK (Nnumber LIKE 'N[0-9]{8}$'),
+    CONSTRAINT STUDENT_N_NUMBER_FORMAT CHECK (REGEXP_LIKE(Nnumber, '^N[0-9]{8}$')),
 	
 	Curr_street VARCHAR2(30),
 	
@@ -126,11 +124,11 @@ CREATE TABLE STUDENT ( -- Student Entity
 	
 	Major_dept VARCHAR2(4),
     
-    CONSTRAINT MAJOR_DCODE_FORMAT CHECK (Major_dept LIKE '[A-Z]{1,4}$'),
+    CONSTRAINT MAJOR_DCODE_FORMAT CHECK (REGEXP_LIKE(Major_dept, '^[A-Z]{1,4}$')),
 	
 	Minor_dept VARCHAR2(4),
     
-    CONSTRAINT MINOR_DCODE_FORMAT CHECK (Minor_dept LIKE '[A-Z]{1,4}$'),
+    CONSTRAINT MINOR_DCODE_FORMAT CHECK (REGEXP_LIKE(Minor_dept, '^[A-Z]{1,4}$')),
 	
 	CONSTRAINT STUDENT_PK
 	
@@ -154,17 +152,25 @@ CREATE TABLE STUDENT ( -- Student Entity
 );
 
 CREATE TABLE COURSE ( -- Course Entity
-	Cnumber CHAR(7) CONSTRAINT COURSE_NUMBER_FORMAT CHECK (Cnumber LIKE '[A-Z]{3} [0-9]{4}$'),
+	Cnumber CHAR(7)
+    
+    CONSTRAINT COURSE_NUMBER_FORMAT CHECK (REGEXP_LIKE(Cnumber, '^[A-Z]{3}[0-9]{4}$')),
 	
 	Cname VARCHAR2(30),
 	
 	Cdesc VARCHAR2(50),
 	
-	Dept VARCHAR2(4) CONSTRAINT COURSE_DCODE_FORMAT CHECK (Dept LIKE '[A-Z]{1,4}$'),
+	Dept VARCHAR2(4)
+    
+    CONSTRAINT COURSE_DCODE_FORMAT CHECK (REGEXP_LIKE(Dept, '^[A-Z]{1,4}$')),
 	
-	Level_ DECIMAL(4,0) CONSTRAINT LEVEL_RANGE CHECK (Level_ >= 1000 AND Level_ <= 7000 AND MOD(Level_, 1000) = 0),
+	Level_ DECIMAL(4,0)
+    
+    CONSTRAINT LEVEL_RANGE CHECK (Level_ >= 1000 AND Level_ <= 7000 AND MOD(Level_, 1000) = 0),
 	
-	Hours_ INT CONSTRAINT HOURS_RANGE CHECK (Hours_ > 0 AND Hours_ < 6),
+	Hours_ INT
+    
+    CONSTRAINT HOURS_RANGE CHECK (Hours_ > 0 AND Hours_ < 6),
 	
 	CONSTRAINT COURSE_PK
 	
@@ -176,15 +182,27 @@ CREATE TABLE COURSE ( -- Course Entity
 );
 
 CREATE TABLE SECTION ( -- Section Entity
-	 Course CHAR(7) CONSTRAINT SECTION_CNUMBER_FORMAT CHECK (Course LIKE '[A-Z]{3} [0-9]{4}$'),
+	 Course CHAR(7)
+     
+     CONSTRAINT SECTION_CNUMBER_FORMAT CHECK (REGEXP_LIKE(Course, '^[A-Z]{3}[0-9]{4}$')),
 	 
-	 Instructor CHAR(9) CONSTRAINT INSTRUCTOR_SECTION_N_NUMBER_FORMAT CHECK (Instructor LIKE 'N[0-9]{8}$'),
+	 Instructor CHAR(9)
+     
+     CONSTRAINT INSTRUCTOR_SECTION_N_NUMBER_FORMAT CHECK (REGEXP_LIKE(Instructor, '^N[0-9]{8}$')),
 	 
-	 Snumber INT CONSTRAINT SECTION_NUMBER_RANGE CHECK (Snumber > 0),
+	 Snumber INT
+     
+     DEFAULT 1
+     
+     CONSTRAINT SECTION_NUMBER_RANGE CHECK (Snumber > 0),
 	 
-	 Semester VARCHAR2(8) CONSTRAINT SECTION_SEMESTER_OPTIONS CHECK (Semester IN ('Fall', 'Spring', 'Summer A', 'Summer B')),
+	 Semester VARCHAR2(8)
+     
+     CONSTRAINT SECTION_SEMESTER_OPTIONS CHECK (Semester IN ('Fall', 'Spring', 'Summer A', 'Summer B')),
 	 
-	 Year_ DECIMAL(4,0) CONSTRAINT SECTION_YEAR_RANGE CHECK (Year_ >= 1965 AND Year_ <= 2050),
+	 Year_ DECIMAL(4,0)
+     
+     CONSTRAINT SECTION_YEAR_RANGE CHECK (Year_ >= 1965 AND Year_ <= 2050),
 	 
 	 CONSTRAINT SECTION_PK
 	 
@@ -204,9 +222,9 @@ CREATE TABLE SECTION ( -- Section Entity
 );
 
 CREATE TABLE PREREQUISITE ( -- Prerequisite: Course M:N Recurrence Relation
-	Cnumber CHAR(7) CONSTRAINT PREREQUISITE_CNUMBER_FORMAT CHECK (Cnumber LIKE '[A-Z]{3} [0-9]{4}$'),
+	Cnumber CHAR(7) CONSTRAINT PREREQUISITE_CNUMBER_FORMAT CHECK (REGEXP_LIKE(Cnumber, '^[A-Z]{3}[0-9]{4}$')),
 	
-	Pnumber CHAR(7) CONSTRAINT PREREQUISITE_PNUMBER_FORMAT CHECK (Pnumber LIKE '[A-Z]{3} [0-9]{4}$'),
+	Pnumber CHAR(7) CONSTRAINT PREREQUISITE_PNUMBER_FORMAT CHECK (REGEXP_LIKE(Pnumber, '^[A-Z]{3}[0-9]{4}$')),
 	
 	CONSTRAINT PREREQUISITE_PK
 	
@@ -228,17 +246,31 @@ CREATE TABLE PREREQUISITE ( -- Prerequisite: Course M:N Recurrence Relation
 );
 
 CREATE TABLE ENROLLED_IN ( -- Enrolled_in: Student M:N Section Relation
-	Student CHAR(9) CONSTRAINT STUDENT_ENROLLED_N_NUMBER_FORMAT CHECK (Student LIKE 'N[0-9]{8}$'),
+	Student CHAR(9)
+    
+    CONSTRAINT STUDENT_ENROLLED_N_NUMBER_FORMAT CHECK (REGEXP_LIKE(Student, '^N[0-9]{8}$')),
 	
-	Course CHAR(7) CONSTRAINT ENROLLED_CNUMBER_FORMAT CHECK (Course LIKE '[A-Z]{3} [0-9]{4}$'),
+	Course CHAR(7)
+    
+    CONSTRAINT ENROLLED_CNUMBER_FORMAT CHECK (REGEXP_LIKE(Course, '^[A-Z]{3}[0-9]{4}$')),
 	
-	Semester VARCHAR2(8) CONSTRAINT ENROLLED_SEMESTER_OPTIONS CHECK (Semester IN ('Fall', 'Spring', 'Summer A', 'Summer B')),
+	Semester VARCHAR2(8)
+    
+    CONSTRAINT ENROLLED_SEMESTER_OPTIONS CHECK (Semester IN ('Fall', 'Spring', 'Summer A', 'Summer B')),
 	
-	Year_ DECIMAL(4,0) CONSTRAINT ENROLLED_YEAR_RANGE CHECK (Year_ >= 1965 AND Year_ <= 2050),
+	Year_ DECIMAL(4,0)
+    
+    CONSTRAINT ENROLLED_YEAR_RANGE CHECK (Year_ >= 1965 AND Year_ <= 2050),
 	
-	Snumber INT CONSTRAINT ENROLLED_SNUMBER_RANGE CHECK (Snumber > 0),
+	Snumber INT
+    
+    CONSTRAINT ENROLLED_SNUMBER_RANGE CHECK (Snumber > 0),
 	
-	Grade VARCHAR2(2) CONSTRAINT GRADE_OPTIONS CHECK (Grade IN ('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D-', 'D', 'F')),
+	Grade VARCHAR2(2)
+    
+    DEFAULT 'A'
+    
+    CONSTRAINT GRADE_OPTIONS CHECK (Grade IN ('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D-', 'D', 'F')),
 	
 	CONSTRAINT ENROLLED_IN_PK
 	
@@ -256,20 +288,3 @@ CREATE TABLE ENROLLED_IN ( -- Enrolled_in: Student M:N Section Relation
 	
 	ON DELETE CASCADE
 );
-
-/* TRIGGERS 
-
-CREATE TRIGGER BEFORE_INSERT_SECTION
-BEFORE INSERT ON SECTION
-FOR EACH ROW
-BEGIN
-    DECLARE Max_snumber INT;
-
-    SELECT COALESCE(MAX(Snumber), 0) INTO Max_snumber
-    FROM SECTION
-    WHERE Course = NEW.Course
-      AND Semester = NEW.Semester
-      AND Year = NEW.Year;
-
-    SET NEW.Snumber = Max_snumber + 1;
-END;*/
